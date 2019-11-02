@@ -195,7 +195,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
             // Use gamepad left & right Bumpers to open and close the claw
-            if (left_bumper) { 
+            if (left_bumper) {
                 clawOffset += claw_speed;
                 clawExpanded = true;
             } else if (right_bumper) {
