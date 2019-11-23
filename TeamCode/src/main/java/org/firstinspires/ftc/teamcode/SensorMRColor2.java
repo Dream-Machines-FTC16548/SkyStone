@@ -118,7 +118,11 @@ public class SensorMRColor2 extends LinearOpMode {
       telemetry.addData("Red  ", colorSensor.red());
       telemetry.addData("Green", colorSensor.green());
       telemetry.addData("Blue ", colorSensor.blue());
-      telemetry.addData("Hue", hsvValues[0]);
+      telemetry.addData("Clear2 ", colorSensor2.alpha());
+      telemetry.addData("Red2  ", colorSensor2.red());
+      telemetry.addData("Green2 ", colorSensor2.green());
+      telemetry.addData("Blue2 ", colorSensor2.blue());
+      telemetry.addData("Hue2", hsvValues[0]);
 
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument
