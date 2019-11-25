@@ -30,7 +30,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 
@@ -39,12 +38,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
@@ -57,6 +59,8 @@ public class DM_Auto_Mecanum extends LinearOpMode {
     /* Declare OpMode members. */
 //    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
     private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private Servo front_left_grab, front_right_grab;
+    private DistanceSensor sensorRange;
     ColorSensor colorSensor;    // Hardware Device Object
     ColorSensor colorSensor2;
     float hsvValues[] = {0F,0F,0F};
@@ -72,7 +76,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED_SLOW        = 0.4;
-    static final double     DRIVE_SPEED             = 1.0;
+    static final double     DRIVE_SPEED             = 0.7;
     static final double     TURN_SPEED              = 0.15;
     boolean                 soundPlaying            = false;
 
@@ -127,10 +131,6 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             tfod.activate();
         }
 
-        // Initialization for sound
-        Context myApp = hardwareMap.appContext;
-        int soundID = myApp.getResources().getIdentifier("ss_darth_vader", "raw", myApp.getPackageName());
-
         /*
          * Initialize the drive system variables.
          * The init() method of the hardware class does all the work here
@@ -138,16 +138,27 @@ public class DM_Auto_Mecanum extends LinearOpMode {
 //        robot.init(hardwareMap);
 
         frontLeft = hardwareMap.get(DcMotor.class, "front_left");
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight = hardwareMap.get(DcMotor.class, "front_right");
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft = hardwareMap.get(DcMotor.class, "back_left");
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backRight = hardwareMap.get(DcMotor.class, "back_right");
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
+
+        // Front grabber servos
+        front_left_grab = hardwareMap.get(Servo.class, "fl_grab");
+        front_right_grab = hardwareMap.get(Servo.class, "fr_grab");
+        front_left_grab.setPosition(0.6);
+        front_right_grab.setPosition(0.1);
+
+        // Distance Sensor
+        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Resetting Encoders");    //
@@ -167,10 +178,10 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
         // get a reference to our ColorSensor object.
-        colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-        colorSensor.enableLed(true);
-        colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
-        colorSensor2.enableLed(true);
+//        colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
+//        colorSensor.enableLed(true);
+//        colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
+//        colorSensor2.enableLed(true);
 
 
         // Send telemetry message to indicate successful Encoder reset
@@ -200,7 +211,44 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
+//        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
+
+        // Step 1: Move forward
+        int target_leftPos = -1000;
+        int target_rightPos = -1000;
+        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos );
+
+        sleep(500 );
+
+        // Step 2: Move Sideway to Right
+        target_leftPos += 2500;
+        target_rightPos -= 2500;
+        moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
+        sleep(500 );
+
+        // Step 2.5: Move forward until certain range
+        moveFwdUntilRange( 0.5, 1 );
+        sleep(500 );
+
+        // Step 3: Put down front grabbers
+        front_left_grab.setPosition(0.0);
+        front_right_grab.setPosition(0.65);
+        sleep(2000);
+
+        // Step 4: Move backward
+        target_leftPos += 1500;
+        target_rightPos += 1500;
+        moveFwdAndBack( -1.0, target_leftPos, target_rightPos );
+        sleep(500 );
+
+        // Step 5: Move front grabbers up
+        front_left_grab.setPosition(0.6);
+        front_right_grab.setPosition(0.1);
+        sleep(500 );
+
+        // Step 6: Move Sideway to Left
+        moveSideway( -DRIVE_SPEED, -1800, 3400 );
+
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
@@ -307,6 +355,145 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         }
     }
 
+    public void moveSideway( double speed, int leftPos, int rightPos ) {
+
+        // Right = +ve speed; Left = -ve speed
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setTargetPosition( leftPos );
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setTargetPosition( rightPos );
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(speed);
+
+        while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
+
+            // Use gyro to drive in a straight line.
+            correction = checkDirection();
+//            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(-speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+    public void moveFwdAndBack( double speed, int leftPos, int rightPos ) {
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setTargetPosition( leftPos );
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setTargetPosition( rightPos );
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(-speed);
+
+        while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
+
+            // Use gyro to drive in a straight line.
+//            correction = checkDirection();
+            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(-speed - correction);
+
+            // Display it for the driver.
+//            telemetry.addData("LF", frontLeft.getCurrentPosition());
+//            telemetry.addData("RF", frontRight.getCurrentPosition());
+//            telemetry.addData("LB", backLeft.getCurrentPosition());
+//            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("LF", frontLeft.getPower());
+            telemetry.addData("RF", frontRight.getPower());
+            telemetry.addData("LB", backLeft.getPower());
+            telemetry.addData("RB", backRight.getPower());
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+    public void moveFwdUntilRange( double speed, double distanceInch ) {
+        speed = -speed;
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(speed);
+        backRight.setPower(speed);
+
+        double distance = sensorRange.getDistance(DistanceUnit.INCH);
+
+        while (opModeIsActive() && distance > distanceInch ) {
+
+            // Use gyro to drive in a straight line.
+//            correction = checkDirection();
+            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(speed - correction);
+            backLeft.setPower(speed + correction);
+            backRight.setPower(speed - correction);
+
+            distance = sensorRange.getDistance(DistanceUnit.INCH);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+
+    /*
     public void moveForwardUntilColorFound( double speed, int color_to_stop ) {
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -361,17 +548,17 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             }
 
             // Display it for the driver.
-//            telemetry.addData("LF", frontLeft.getCurrentPosition());
-//            telemetry.addData("RF", frontRight.getCurrentPosition());
-//            telemetry.addData("LB", backLeft.getCurrentPosition());
-//            telemetry.addData("RB", backRight.getCurrentPosition());
-            telemetry.addData("1:Red  ", red_value);
-            telemetry.addData("1:Green", green_value);
-            telemetry.addData("1:Blue ", blue_value);
-            telemetry.addData("2:Red  ", red_value2);
-            telemetry.addData("2:Green", green_value2);
-            telemetry.addData("2:Blue ", blue_value2);
-            telemetry.addData("Found: ", colorDetected);
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+//            telemetry.addData("1:Red  ", red_value);
+//            telemetry.addData("1:Green", green_value);
+//            telemetry.addData("1:Blue ", blue_value);
+//            telemetry.addData("2:Red  ", red_value2);
+//            telemetry.addData("2:Green", green_value2);
+//            telemetry.addData("2:Blue ", blue_value2);
+//            telemetry.addData("Found: ", colorDetected);
 
             // change the background color to match the color detected by the RGB sensor.
             // pass a reference to the hue, saturation, and value array as an argument
@@ -391,6 +578,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
     }
+
+
+     */
 
     /*
      *  Method to perfmorm a relative move, based on encoder counts.
