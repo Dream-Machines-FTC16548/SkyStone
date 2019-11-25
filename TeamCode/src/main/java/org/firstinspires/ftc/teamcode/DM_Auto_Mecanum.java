@@ -223,14 +223,14 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(500 );
 
         // Step 2: Move Sideway to Right
-        target_leftPos += 2500;
-        target_rightPos -= 2500;
+        target_leftPos += 2500;     // 1500
+        target_rightPos -= 2500;    // -3500
         moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.5, 1 );
-        sleep(500 );
+        moveFwdUntilRange( 0.5, 1 );    // 1500 - x
+        sleep(500 );                           // -3500 - x
 
         // Step 3: Put down front grabbers
         front_left_grab.setPosition(0.0);
@@ -238,8 +238,8 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(2000);
 
         // Step 4: Move backward
-        target_leftPos += 1500;
-        target_rightPos += 1500;
+        target_leftPos += 1500;     // 3000 - x
+        target_rightPos += 1500;    // - 2000 - x
         moveFwdAndBack( -0.5, target_leftPos, target_rightPos );
         sleep(500 );
 
@@ -380,7 +380,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection();
+            correction = checkDirection() * Math.abs(speed);
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -431,7 +431,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
                 colorFound = true;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * 0.3;
+            correction = checkDirection() * Math.abs(speed);
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -474,7 +474,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
 
             // Use gyro to drive in a straight line.
-//            correction = checkDirection();
+//            correction = checkDirection() * Math.abs(speed);
             correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
@@ -522,7 +522,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         while (opModeIsActive() && distance > distanceInch ) {
 
             // Use gyro to drive in a straight line.
-//            correction = checkDirection();
+//            correction = checkDirection() * Math.abs(speed);
             correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);

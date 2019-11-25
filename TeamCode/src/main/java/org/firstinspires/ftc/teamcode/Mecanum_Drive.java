@@ -59,6 +59,12 @@ public class Mecanum_Drive extends LinearOpMode {
     public final static double linear_upper = 0.615;        // Linear servo upper limit
     public final static double linear_initial = linear_lower;
     public final static double linear_offset_max = 0.002;    // Max offset allowed to move linear servo
+    public final static double linear_motor_up_power = 1.0;     // Linear Motor up power
+    public final static double linear_motor_down_power = -1.0;  // Linear Motor down power
+    public final static double linear_motor_up_step = 100;      // Linear Motor position up
+    public final static double linear_motor_down_step = 100;    // Linear Motor position down
+    public final static double linear_motor_initial = 0;        // Linear Motor initial position
+    public final static double linear_motor_end = 15000;        // Linear Motor end position
     public final static double grabber_speed = 0.005;       // Grabber servo rotation rate
     public final static double arm_up_power = 1.0;          // Arm up movement rate
     public final static double arm_down_power = -1.0;       // Arm down movement rate
@@ -198,12 +204,12 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
             // Linear motor movements
-            if (btn_y && linear_motor.getCurrentPosition() < 15000 ) {
-                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() + 100);
-                linear_motor.setPower(1.0);
+            if (btn_y && linear_motor.getCurrentPosition() < linear_motor_end ) {
+                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() + linear_motor_up_step);
+                linear_motor.setPower(linear_motor_up_power);
             } else if (btn_a && arm_limit.getState()) {
-                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() - 100);
-                linear_motor.setPower(-1.0);
+                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() - linear_motor_down_step);
+                linear_motor.setPower(linear_motor_down_power);
             } else
                 linear_motor.setPower(0.0);
 
@@ -300,7 +306,7 @@ public class Mecanum_Drive extends LinearOpMode {
 */
 
             if ( grabber.getPosition() > 0.5 ) {
-                target_grabber = 0.685 + (linear_motor.getCurrentPosition() - 0.0) / 15000.0 * (0.965 - 0.685);
+                target_grabber = 0.685 + (linear_motor.getCurrentPosition() - linear_motor_initial) / linear_motor_end * (0.965 - 0.685);
                 grabberOffset = target_grabber;
             }
 
@@ -408,8 +414,8 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Initialize arm motor position
         while (arm_limit.getState()) {
-            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - 100);
-            linear_motor.setPower(-1.0);
+            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - linear_motor_down_step);
+            linear_motor.setPower(linear_motor_down_power);
         }
         linear_motor.setPower(0);
         linear_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
