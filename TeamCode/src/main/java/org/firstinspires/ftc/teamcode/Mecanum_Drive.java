@@ -61,10 +61,10 @@ public class Mecanum_Drive extends LinearOpMode {
     public final static double linear_offset_max = 0.002;    // Max offset allowed to move linear servo
     public final static double linear_motor_up_power = 1.0;     // Linear Motor up power
     public final static double linear_motor_down_power = -1.0;  // Linear Motor down power
-    public final static double linear_motor_up_step = 100;      // Linear Motor position up
-    public final static double linear_motor_down_step = 100;    // Linear Motor position down
-    public final static double linear_motor_initial = 0;        // Linear Motor initial position
-    public final static double linear_motor_end = 15000;        // Linear Motor end position
+    public final static int linear_motor_up_step = 100;      // Linear Motor position up
+    public final static int linear_motor_down_step = 100;    // Linear Motor position down
+    public final static int linear_motor_initial = 0;        // Linear Motor initial position
+    public final static int linear_motor_end = 15000;        // Linear Motor end position
     public final static double grabber_speed = 0.005;       // Grabber servo rotation rate
     public final static double arm_up_power = 1.0;          // Arm up movement rate
     public final static double arm_down_power = -1.0;       // Arm down movement rate
@@ -306,7 +306,7 @@ public class Mecanum_Drive extends LinearOpMode {
 */
 
             if ( grabber.getPosition() > 0.5 ) {
-                target_grabber = 0.685 + (linear_motor.getCurrentPosition() - linear_motor_initial) / linear_motor_end * (0.965 - 0.685);
+                target_grabber = 0.685 + (double) ((linear_motor.getCurrentPosition() - linear_motor_initial)) / (double) linear_motor_end * (0.965 - 0.685);
                 grabberOffset = target_grabber;
             }
 
