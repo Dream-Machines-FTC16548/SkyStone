@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
@@ -54,6 +55,9 @@ public class MyPushbotTeleopPOV_Linear_Chuanqi extends LinearOpMode {
 
     /* Declare OpMode members. */
     HardwarePushbot robot           = new HardwarePushbot();   // Use a Pushbot's hardware
+    private DcMotor         leftMotor;
+    private DcMotor         rightMotor;
+
     double          clawOffset      = 0;                       // Servo mid position
     final double    CLAW_SPEED      = 0.02 ;                   // sets rate to move servo
 
@@ -68,7 +72,21 @@ public class MyPushbotTeleopPOV_Linear_Chuanqi extends LinearOpMode {
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
-        robot.init(hardwareMap);
+        //robot.init(hardwareMap);
+        leftMotor = hardwareMap.get(DcMotor.class, "left_drive");
+        rightMotor = hardwareMap.get(DcMotor.class, "right_drive");
+
+        // Ensure the robot it stationary, then reset the encoders and calibrate the gyro.
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        int target_leftPos = -1000;
+        int target_rightPos = -1000;
+        leftMotor.setTargetPosition( target_leftPos );
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setTargetPosition( target_rightPos );
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Say", "Hello Driver");    //
@@ -100,8 +118,8 @@ public class MyPushbotTeleopPOV_Linear_Chuanqi extends LinearOpMode {
             }
 
             // Output the safe vales to the motor drives.
-            robot.leftDrive.setPower(left);
-            robot.rightDrive.setPower(right);
+            leftMotor.setPower(left);
+            rightMotor.setPower(right);
 
             // Use gamepad left & right Bumpers to open and close the claw
 //            if (gamepad1.right_bumper)
