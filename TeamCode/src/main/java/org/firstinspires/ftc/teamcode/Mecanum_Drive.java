@@ -16,9 +16,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 @TeleOp
 public class Mecanum_Drive extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight;
+    private DcMotor linear_motor;
     private DcMotor lowerArm;
     private Servo leftClaw, rightClaw, linear, grabber, rotate, front_left_grab, front_right_grab, side_grab;
-    private DigitalChannel lower_sensor;
+    private DigitalChannel lower_sensor, arm_limit;
     private float fwd, side, turn, power, lower_arm_stick, grabber_stick;
     private double clawOffset = 0.5;
     private double rotation_offset = 0.0;
@@ -109,10 +110,14 @@ public class Mecanum_Drive extends LinearOpMode {
         lowerArm = hardwareMap.get(DcMotor.class, "lower_arm");
         lowerArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Linear motor
+        linear_motor = hardwareMap.get(DcMotor.class, "linear");
+        linear_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         // Claw servos
         leftClaw = hardwareMap.get(Servo.class, "left_claw");
         rightClaw = hardwareMap.get(Servo.class, "right_claw");
-        linear = hardwareMap.get(Servo.class, "linear");
+//        linear = hardwareMap.get(Servo.class, "linear");
         grabber = hardwareMap.get(Servo.class,"grabber");
 //        rotate = hardwareMap.get(Servo.class, "rotate");
 
@@ -125,9 +130,11 @@ public class Mecanum_Drive extends LinearOpMode {
         lower_sensor = hardwareMap.get(DigitalChannel.class, "arm_lower_sensor");
         lower_sensor.setMode(DigitalChannel.Mode.INPUT);
 
+        arm_limit = hardwareMap.get(DigitalChannel.class, "arm_limit");
+        arm_limit.setMode(DigitalChannel.Mode.INPUT);
 
         // Setting initial positions for claw, grabber, linear servo and arm
-//        initializePositions();
+        initializePositions();
 
 
         telemetry.addData("Status", "Initialized");
@@ -190,6 +197,16 @@ public class Mecanum_Drive extends LinearOpMode {
                 lowerArm.setPower(0.0);
 
 
+            // Linear motor movements
+            if (btn_y && linear_motor.getCurrentPosition() < 15000 ) {
+                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() + 100);
+                linear_motor.setPower(1.0);
+            } else if (btn_a && arm_limit.getState()) {
+                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() - 100);
+                linear_motor.setPower(-1.0);
+            } else
+                linear_motor.setPower(0.0);
+
             // Use gamepad left & right Bumpers to open and close the claw
             if (left_bumper_2) {
                 clawOffset += claw_speed;
@@ -197,7 +214,7 @@ public class Mecanum_Drive extends LinearOpMode {
                 clawOpen = true;
                 clawExpanded = true;
             } else if (right_bumper_2) {
-                clawOffset -= claw_speed;
+//                clawOffset -= claw_speed;
 //                clawOffset = claw_release_offset;
                 clawOpen = false;
                 clawExpanded = true;
@@ -205,16 +222,16 @@ public class Mecanum_Drive extends LinearOpMode {
 
             // Move both claw servos to new position.  Assume servos are mirror image of each other.
             if ( clawExpanded ) {
-                clawOffset = Range.clip(clawOffset, -claw_move_span, claw_move_span);
-                leftClaw.setPosition(claw_mid_position + clawOffset);
-                rightClaw.setPosition(claw_mid_position - clawOffset);
-/*                if (clawOpen) {
-                    leftClaw.setPosition(0.6);
-                    rightClaw.setPosition(0.1);
+//                clawOffset = Range.clip(clawOffset, -claw_move_span, claw_move_span);
+//                leftClaw.setPosition(claw_mid_position + clawOffset);
+//                rightClaw.setPosition(claw_mid_position - clawOffset);
+                if (clawOpen) {
+                    leftClaw.setPosition(0.39);
+                    rightClaw.setPosition(0.59);
                 } else {
-                    leftClaw.setPosition(0.2);
-                    rightClaw.setPosition(0.4);
-                }*/
+                    leftClaw.setPosition(0.25);
+                    rightClaw.setPosition(0.7);
+                }
             }
 
 
@@ -255,6 +272,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
             // Use gamepad Y & right A buttons to rotate the linear servo
+/*
             if (btn_y)
                 linearOffset += linear_speed;
             else if (btn_a)
@@ -279,7 +297,12 @@ public class Mecanum_Drive extends LinearOpMode {
 
                 linearOffset = 0.0;
             }
+*/
 
+            if ( grabber.getPosition() > 0.5 ) {
+                target_grabber = 0.685 + (linear_motor.getCurrentPosition() - 0.0) / 15000.0 * (0.965 - 0.685);
+                grabberOffset = target_grabber;
+            }
 
             // Grabber movement
             if ( grabber_stick < 0 )
@@ -303,16 +326,17 @@ public class Mecanum_Drive extends LinearOpMode {
                 initializePositions();
 
             // Output Telemetry information
-            telemetry.addData("FWD=", fwd);
-            telemetry.addData("SIDE=", side);
-            telemetry.addData("TURN=", turn);
-//            telemetry.addData("RCLAW=", rightClaw.getPosition());
-//            telemetry.addData("LCLAW", leftClaw.getPosition());
-//            telemetry.addData("GRAB=", grabber.getPosition());
+//            telemetry.addData("FWD=", fwd);
+//            telemetry.addData("SIDE=", side);
+//            telemetry.addData("TURN=", turn);
+            telemetry.addData("RCLAW=", rightClaw.getPosition());
+            telemetry.addData("LCLAW", leftClaw.getPosition());
+            telemetry.addData("GRAB=", grabber.getPosition());
 //            telemetry.addData("TGRAB=", target_grabber );
 //            telemetry.addData("Linear= ", linear.getPosition());
-            telemetry.addData("LFront= ", front_left_grab.getPosition());
-            telemetry.addData("LRront= ", front_right_grab.getPosition());
+//            telemetry.addData("Linear= ", linear_motor.getCurrentPosition());
+//            telemetry.addData("LFront= ", front_left_grab.getPosition());
+//            telemetry.addData("LRront= ", front_right_grab.getPosition());
 //            telemetry.addData("ARMSTK=", lower_arm_stick);
 //            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
 //            telemetry.addData("Gyro= ", gyro_assist);
@@ -371,7 +395,7 @@ public class Mecanum_Drive extends LinearOpMode {
         sleep(2000);
 
         // Init linear servo position
-        linear.setPosition(linear_initial);
+//        linear.setPosition(linear_initial);
 
         // Initialize lower arm position
         while (lower_sensor.getState()) {
@@ -381,6 +405,16 @@ public class Mecanum_Drive extends LinearOpMode {
         lowerArm.setPower(0);
         lowerArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lowerArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Initialize arm motor position
+        while (arm_limit.getState()) {
+            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - 100);
+            linear_motor.setPower(-1.0);
+        }
+        linear_motor.setPower(0);
+        linear_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linear_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
     }
 
     /**

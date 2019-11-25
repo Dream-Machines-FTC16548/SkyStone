@@ -64,7 +64,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
     ColorSensor colorSensor;    // Hardware Device Object
     ColorSensor colorSensor2;
     float hsvValues[] = {0F,0F,0F};
+    float hsvValues2[] = {0F,0F,0F};
     final float values[] = hsvValues;
+    final float values2[] = hsvValues2;
     int relativeLayoutId;
     View relativeLayout;
 
@@ -178,10 +180,10 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
 
         // get a reference to our ColorSensor object.
-//        colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-//        colorSensor.enableLed(true);
-//        colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
-//        colorSensor2.enableLed(true);
+        colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
+        colorSensor.enableLed(true);
+        colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
+        colorSensor2.enableLed(true);
 
 
         // Send telemetry message to indicate successful Encoder reset
@@ -238,7 +240,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         // Step 4: Move backward
         target_leftPos += 1500;
         target_rightPos += 1500;
-        moveFwdAndBack( -1.0, target_leftPos, target_rightPos );
+        moveFwdAndBack( -0.5, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 5: Move front grabbers up
@@ -247,7 +249,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(500 );
 
         // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -1800, 3400 );
+        moveSideway( -DRIVE_SPEED, -1000, 2600 );
+        sleep(500 );
+        moveSidewayUntilColorFound( -0.3, COLOR_RED );
 
 
         // Step through each leg of the path,
@@ -377,6 +381,57 @@ public class DM_Auto_Mecanum extends LinearOpMode {
 
             // Use gyro to drive in a straight line.
             correction = checkDirection();
+//            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(-speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+
+    public void moveSidewayUntilColorFound( double speed, int color ) {
+
+        // Right = +ve speed; Left = -ve speed
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(speed);
+
+        boolean colorFound = false;
+        while (opModeIsActive() && !colorFound ) {
+            Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+            Color.RGBToHSV(colorSensor2.red() * 8, colorSensor2.green() * 8, colorSensor2.blue() * 8, hsvValues2);
+
+            if ( color == COLOR_BLUE && ( hsvValues[0] > 150 || hsvValues2[0] > 150 ))
+                colorFound = true;
+            else if ( color == COLOR_RED && ( hsvValues[0] < 50 || hsvValues2[0] < 50 ))
+                colorFound = true;
+
+            // Use gyro to drive in a straight line.
+            correction = checkDirection() * 0.3;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
