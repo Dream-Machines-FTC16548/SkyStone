@@ -90,12 +90,16 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Mecanum wheels
         frontLeft = hardwareMap.get(DcMotor.class, "front_left");
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight = hardwareMap.get(DcMotor.class, "front_right");
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backLeft = hardwareMap.get(DcMotor.class, "back_left");
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight = hardwareMap.get(DcMotor.class, "back_right");
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
@@ -123,7 +127,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
         // Setting initial positions for claw, grabber, linear servo and arm
-        initializePositions();
+//        initializePositions();
 
 
         telemetry.addData("Status", "Initialized");
@@ -299,23 +303,23 @@ public class Mecanum_Drive extends LinearOpMode {
                 initializePositions();
 
             // Output Telemetry information
-//            telemetry.addData("FWD=", fwd);
-//            telemetry.addData("SIDE=", side);
-//            telemetry.addData("TURN=", turn);
-            telemetry.addData("RCLAW=", rightClaw.getPosition());
-            telemetry.addData("LCLAW", leftClaw.getPosition());
-            telemetry.addData("GRAB=", grabber.getPosition());
+            telemetry.addData("FWD=", fwd);
+            telemetry.addData("SIDE=", side);
+            telemetry.addData("TURN=", turn);
+//            telemetry.addData("RCLAW=", rightClaw.getPosition());
+//            telemetry.addData("LCLAW", leftClaw.getPosition());
+//            telemetry.addData("GRAB=", grabber.getPosition());
 //            telemetry.addData("TGRAB=", target_grabber );
-            telemetry.addData("Linear= ", linear.getPosition());
+//            telemetry.addData("Linear= ", linear.getPosition());
             telemetry.addData("LFront= ", front_left_grab.getPosition());
             telemetry.addData("LRront= ", front_right_grab.getPosition());
 //            telemetry.addData("ARMSTK=", lower_arm_stick);
 //            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
 //            telemetry.addData("Gyro= ", gyro_assist);
-//            telemetry.addData("LF", frontLeft.getCurrentPosition());
-//            telemetry.addData("RF", frontRight.getCurrentPosition());
-//            telemetry.addData("LB", backLeft.getCurrentPosition());
-//            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
 
             telemetry.update();
         }
