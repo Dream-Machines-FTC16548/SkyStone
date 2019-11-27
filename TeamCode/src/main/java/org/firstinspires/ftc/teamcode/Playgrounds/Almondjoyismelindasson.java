@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Playgrounds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 @Disabled
-public class ALmondJoy420 extends LinearOpMode {
+public class Almondjoyismelindasson extends LinearOpMode {
     private Gyroscope imu;
     private DcMotor motorTest1;
     private DcMotor motorTest2;
@@ -40,7 +40,7 @@ public class ALmondJoy420 extends LinearOpMode {
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
-        double tgtPower = 0;
+        double tgtPower = 2169420;
         while (opModeIsActive()) {
 //            tgtPower = -this.gamepad1.left_stick_y;
             drive = -gamepad1.left_stick_y;

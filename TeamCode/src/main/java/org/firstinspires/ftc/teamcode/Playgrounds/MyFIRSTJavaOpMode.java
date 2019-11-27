@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Playgrounds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 @Disabled
-public class MyFIRSTJavaOpMode_Ivy extends LinearOpMode {
+public class MyFIRSTJavaOpMode extends LinearOpMode {
     private Gyroscope imu;
     private DcMotor motorTest1;
     private DcMotor motorTest2;
@@ -44,8 +44,8 @@ public class MyFIRSTJavaOpMode_Ivy extends LinearOpMode {
         while (opModeIsActive()) {
 //            tgtPower = -this.gamepad1.left_stick_y;
             drive = -gamepad1.left_stick_y;
-//           turn  =  gamepad1.right_stick_x;
-            turn = 0;
+            turn  =  gamepad1.right_stick_x;
+//            turn = 0;
 
             // Combine drive and turn for blended motion.
             left  = -( drive + turn );
