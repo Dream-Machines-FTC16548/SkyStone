@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Prototypes;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -50,12 +50,11 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
-@TeleOp(name = "Sensor: MR Color2", group = "Sensor")
+@TeleOp(name = "Sensor: SkyStone Test", group = "Sensor")
 // @Disabled
-public class SensorMRColor2 extends LinearOpMode {
+public class SkyStone_Detect extends LinearOpMode {
 
   ColorSensor colorSensor;    // Hardware Device Object
-  ColorSensor colorSensor2;    // Hardware Device Object
 
 
   @Override
@@ -81,11 +80,9 @@ public class SensorMRColor2 extends LinearOpMode {
 
     // get a reference to our ColorSensor object.
     colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-    colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
 
     // Set the LED in the beginning
     colorSensor.enableLed(bLedOn);
-    colorSensor2.enableLed(bLedOn);
 
     // wait for the start button to be pressed.
     waitForStart();
@@ -103,7 +100,6 @@ public class SensorMRColor2 extends LinearOpMode {
         // button is transitioning to a pressed state. So Toggle LED
         bLedOn = !bLedOn;
         colorSensor.enableLed(bLedOn);
-        colorSensor2.enableLed(bLedOn);
       }
 
       // update previous state variable.
@@ -113,16 +109,13 @@ public class SensorMRColor2 extends LinearOpMode {
       Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
 
       // send the info back to driver station using telemetry function.
+      telemetry.addData("SkyStone: ", hsvValues[0]<85? "No":"Yes");
       telemetry.addData("LED", bLedOn ? "On" : "Off");
       telemetry.addData("Clear", colorSensor.alpha());
       telemetry.addData("Red  ", colorSensor.red());
       telemetry.addData("Green", colorSensor.green());
       telemetry.addData("Blue ", colorSensor.blue());
-      telemetry.addData("Clear2 ", colorSensor2.alpha());
-      telemetry.addData("Red2  ", colorSensor2.red());
-      telemetry.addData("Green2 ", colorSensor2.green());
-      telemetry.addData("Blue2 ", colorSensor2.blue());
-      telemetry.addData("Hue2", hsvValues[0]);
+      telemetry.addData("Hue", hsvValues[0]);
 
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument

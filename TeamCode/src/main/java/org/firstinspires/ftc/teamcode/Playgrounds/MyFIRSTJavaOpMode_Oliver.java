@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Playgrounds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 @Disabled
-public class MyFIRSTJavaOpMode extends LinearOpMode {
+public class MyFIRSTJavaOpMode_Oliver extends LinearOpMode {
     private Gyroscope imu;
     private DcMotor motorTest1;
     private DcMotor motorTest2;
@@ -25,7 +25,6 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-//        Some text for branching
 //        imu = hardwareMap.get(Gyroscope.class, "imu");
         motorTest1 = hardwareMap.get(DcMotor.class, "left_drive");
         motorTest2 = hardwareMap.get(DcMotor.class, "right_drive");
@@ -59,8 +58,8 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
                 right /= max;
             }
 
-            motorTest1.setPower(right);
-            motorTest2.setPower(left);
+            motorTest1.setPower(left);
+            motorTest2.setPower(right);
             telemetry.addData("Target Power 1", left);
             telemetry.addData("Target Power 2", right);
             telemetry.addData("Motor Power", motorTest1.getPower());
