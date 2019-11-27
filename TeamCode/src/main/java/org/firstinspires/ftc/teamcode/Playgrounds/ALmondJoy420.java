@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Playgrounds;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 @Disabled
-public class MyFIRSTJavaOpMode_melinda extends LinearOpMode {
+public class ALmondJoy420 extends LinearOpMode {
     private Gyroscope imu;
     private DcMotor motorTest1;
     private DcMotor motorTest2;
@@ -61,8 +61,8 @@ public class MyFIRSTJavaOpMode_melinda extends LinearOpMode {
 
             motorTest1.setPower(right);
             motorTest2.setPower(left);
-            telemetry.addData("Target Power 3", left);
-            telemetry.addData("Target Power 4", right);
+            telemetry.addData("Target Power 1", left);
+            telemetry.addData("Target Power 2", right);
             telemetry.addData("Motor Power", motorTest1.getPower());
             telemetry.addData("Motor Power", motorTest2.getPower());
             telemetry.addData("Status", "Running");

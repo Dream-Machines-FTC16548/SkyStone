@@ -218,18 +218,18 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         // Step 1: Move forward
         int target_leftPos = -1000;
         int target_rightPos = -1000;
-        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos );
+        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 100 );
 
         sleep(500 );
 
         // Step 2: Move Sideway to Right
-        target_leftPos += 2500;     // 1500
-        target_rightPos -= 2500;    // -3500
+        target_leftPos += 2000;     // 1500
+        target_rightPos -= 3000;    // -3500
         moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.5, 1 );    // 1500 - x
+        moveFwdUntilRange( 0.5, 5 );    // 1500 - x
         sleep(500 );                           // -3500 - x
 
         // Step 3: Put down front grabbers
@@ -238,9 +238,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(2000);
 
         // Step 4: Move backward
-        target_leftPos += 1500;     // 3000 - x
-        target_rightPos += 1500;    // - 2000 - x
-        moveFwdAndBack( -0.5, target_leftPos, target_rightPos );
+        target_leftPos += 2500;     // 3000 - x
+        target_rightPos += 2500;    // - 2000 - x
+        moveFwdAndBack( -0.8, target_leftPos, target_rightPos, 100 );
         sleep(500 );
 
         // Step 5: Move front grabbers up
@@ -249,10 +249,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(500 );
 
         // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -1000, 2600 );
-        sleep(500 );
-        moveSidewayUntilColorFound( -0.3, COLOR_RED );
-
+        moveSideway( -DRIVE_SPEED, -600, 2600 );
+        sleep(100 );
+        moveSidewayUntilColorFound( -0.3, COLOR_RED, 2);
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
@@ -377,10 +376,10 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         backLeft.setPower(-speed);
         backRight.setPower(speed);
 
-        while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
+        while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy())) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
+            correction = checkDirection() * Math.abs(speed)*0.5;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -392,6 +391,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             telemetry.addData("RF", frontRight.getCurrentPosition());
             telemetry.addData("LB", backLeft.getCurrentPosition());
             telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
             telemetry.update();
         }
 
@@ -404,7 +404,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
     }
 
 
-    public void moveSidewayUntilColorFound( double speed, int color ) {
+    public void moveSidewayUntilColorFound( double speed, int color, int timeouts ) {
 
         // Right = +ve speed; Left = -ve speed
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -420,8 +420,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         backLeft.setPower(-speed);
         backRight.setPower(speed);
 
+        ElapsedTime     runtime = new ElapsedTime();
         boolean colorFound = false;
-        while (opModeIsActive() && !colorFound ) {
+        while (opModeIsActive() && !colorFound  && runtime.seconds()<timeouts) {
             Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
             Color.RGBToHSV(colorSensor2.red() * 8, colorSensor2.green() * 8, colorSensor2.blue() * 8, hsvValues2);
 
@@ -454,7 +455,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
 
     }
 
-    public void moveFwdAndBack( double speed, int leftPos, int rightPos ) {
+    public void moveFwdAndBack( double speed, int leftPos, int rightPos, int timeouts) {
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -471,15 +472,19 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         backLeft.setPower(-speed);
         backRight.setPower(-speed);
 
-        while (opModeIsActive() && (frontLeft.isBusy() || frontRight.isBusy())) {
+        ElapsedTime     runtime = new ElapsedTime();
+
+        while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy()) && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
-//            correction = checkDirection() * Math.abs(speed);
-            correction = 0;
+            if(leftPos<0)
+                correction = checkDirection() * Math.abs(speed);
+            else
+                correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
-            backLeft.setPower(-speed + correction);
-            backRight.setPower(-speed - correction);
+            backLeft.setPower(-speed - correction);
+            backRight.setPower(-speed + correction);
 
             // Display it for the driver.
 //            telemetry.addData("LF", frontLeft.getCurrentPosition());
@@ -490,6 +495,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             telemetry.addData("RF", frontRight.getPower());
             telemetry.addData("LB", backLeft.getPower());
             telemetry.addData("RB", backRight.getPower());
+            telemetry.addData("Correction", correction);
             telemetry.update();
         }
 
@@ -522,8 +528,8 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         while (opModeIsActive() && distance > distanceInch ) {
 
             // Use gyro to drive in a straight line.
-//            correction = checkDirection() * Math.abs(speed);
-            correction = 0;
+            correction = checkDirection() * Math.abs(speed);
+//            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(speed + correction);
@@ -536,6 +542,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             telemetry.addData("RF", frontRight.getCurrentPosition());
             telemetry.addData("LB", backLeft.getCurrentPosition());
             telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
             telemetry.update();
         }
 

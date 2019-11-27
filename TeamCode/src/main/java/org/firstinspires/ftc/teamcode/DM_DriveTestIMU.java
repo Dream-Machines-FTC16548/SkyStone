@@ -120,15 +120,25 @@ public class DM_DriveTestIMU extends LinearOpMode {
 
             leftMotor.setPower(power - correction);
             rightMotor.setPower(power + correction);
+            sleep(1500);
+
+            rotate(-90, power * 0.5);
+            sleep(500);
 
             // We record the sensor values because we will test them in more than
             // one place with time passing between those places. See the lesson on
             // Timing Considerations to know why.
 
-//            aButton = gamepad1.a;
-//            bButton = gamepad1.b;
-//            touched = touch.isPressed();
+            aButton = gamepad1.a;
+            bButton = gamepad1.b;
+            //touched = touch.isPressed();
 
+            if( aButton || bButton)
+            {
+                break;
+            }
+
+ /*
             if (runtime.seconds() > 3.0)
             {
                 // backup.
@@ -149,7 +159,7 @@ public class DM_DriveTestIMU extends LinearOpMode {
 //                if (bButton) rotate(90, power);
                 runtime.reset();
             }
-
+*/
         }
 
         // turn the motors off.
