@@ -159,11 +159,10 @@ public class Mecanum_Drive extends LinearOpMode {
             if ( turn != 0 ) {
                 // We are turing
                 turning = true;
-
-                frontLeft.setPower(Range.clip(power + side - turn, -turn_speed_max, turn_speed_max));
-                frontRight.setPower(Range.clip(power - side + turn, -turn_speed_max, turn_speed_max));
-                backLeft.setPower(Range.clip(power - side - turn, -turn_speed_max, turn_speed_max));
-                backRight.setPower(Range.clip(power + side + turn, -turn_speed_max, turn_speed_max));
+                frontLeft.setPower(Range.clip(power  - turn, -1, 1));
+                frontRight.setPower(Range.clip(power  + turn, -1, 1));
+                backLeft.setPower(Range.clip(power  - turn, -1, 1));
+                backRight.setPower(Range.clip(power + turn, -1, 1));
             } else {
                 // Just finished turning and let it settled down
                 if ( turning ) {
@@ -183,12 +182,10 @@ public class Mecanum_Drive extends LinearOpMode {
                 else
                     correction = 0;
 
-
                 frontLeft.setPower(Range.clip(power + side + correction, -1, 1));
                 frontRight.setPower(Range.clip(power - side - correction, -1, 1));
                 backLeft.setPower(Range.clip(power - side + correction, -1, 1));
                 backRight.setPower(Range.clip(power + side - correction, -1, 1));
-
             }
 
 
@@ -350,7 +347,9 @@ public class Mecanum_Drive extends LinearOpMode {
             telemetry.addData("RF", frontRight.getCurrentPosition());
             telemetry.addData("LB", backLeft.getCurrentPosition());
             telemetry.addData("RB", backRight.getCurrentPosition());
-
+            telemetry.addData("Power:", power);
+            telemetry.addData("Side:", side);
+            telemetry.addData("Turn:", turn);
             telemetry.update();
         }
     }
