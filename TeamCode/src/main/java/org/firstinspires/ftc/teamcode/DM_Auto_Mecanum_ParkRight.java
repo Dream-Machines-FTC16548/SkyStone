@@ -52,9 +52,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-@Autonomous(name="DM: Auto Mecanum", group="Pushbot")
+@Autonomous(name="DM: Auto Mecanum Park Right", group="Pushbot")
 //@Disabled
-public class DM_Auto_Mecanum extends LinearOpMode {
+public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
 
     /* Declare OpMode members. */
 //    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
@@ -222,14 +222,14 @@ public class DM_Auto_Mecanum extends LinearOpMode {
 
         sleep(500 );
 
-        // Step 2: Move Sideway to Right
-        target_leftPos += 2000;     // 1500
-        target_rightPos -= 3000;    // -3500
-        moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
+        // Step 2: Move Sideway to left
+        target_leftPos += -2000;     // 1500
+        target_rightPos -= -3000;    // -3500
+        moveSideway( -DRIVE_SPEED, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.5, 5 );    // 1500 - x
+        moveFwdUntilRange( 0.5, 3 );    // 1500 - x
         sleep(500 );                           // -3500 - x
 
         // Step 3: Put down front grabbers
@@ -248,10 +248,10 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         front_right_grab.setPosition(0.1);
         sleep(500 );
 
-        // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -600, 2600 );
+        // Step 6: Move Sideway to Right
+        moveSideway( DRIVE_SPEED, 600, -2600 );
         sleep(100 );
-        moveSidewayUntilColorFound( -0.3, COLOR_RED, 2);
+        moveSidewayUntilColorFound( 0.3, COLOR_BLUE, 6);
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
@@ -481,6 +481,8 @@ public class DM_Auto_Mecanum extends LinearOpMode {
                 correction = checkDirection() * Math.abs(speed);
             else
                 correction = 0;
+
+            correction =0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(-speed - correction);
