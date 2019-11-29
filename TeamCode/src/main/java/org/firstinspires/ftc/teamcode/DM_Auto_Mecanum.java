@@ -229,7 +229,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.5, 5 );    // 1500 - x
+        moveFwdUntilRange( 0.5, 3 );    // 1500 - x
         sleep(500 );                           // -3500 - x
 
         // Step 3: Put down front grabbers
@@ -238,8 +238,8 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(2000);
 
         // Step 4: Move backward
-        target_leftPos += 2500;     // 3000 - x
-        target_rightPos += 2500;    // - 2000 - x
+        target_leftPos += 2400;     // 3000 - x
+        target_rightPos += 2400;    // - 2000 - x
         moveFwdAndBack( -0.8, target_leftPos, target_rightPos, 100 );
         sleep(500 );
 
@@ -249,9 +249,9 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         sleep(500 );
 
         // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -600, 2600 );
+        moveSideway( -DRIVE_SPEED, -400, 1100 );
         sleep(100 );
-        moveSidewayUntilColorFound( -0.3, COLOR_RED, 2);
+        moveSidewayUntilColorFound( -0.2, COLOR_RED, 2);
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
@@ -447,6 +447,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             telemetry.update();
         }
 
+        sleep(300);
         // Stop all motion;
         frontLeft.setPower(0);
         frontRight.setPower(0);
