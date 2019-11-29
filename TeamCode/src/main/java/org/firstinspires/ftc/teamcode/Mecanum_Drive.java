@@ -18,7 +18,7 @@ public class Mecanum_Drive extends LinearOpMode {
     private DcMotor frontLeft, frontRight, backLeft, backRight;
     private DcMotor linear_motor;
     private DcMotor lowerArm;
-    private Servo leftClaw, rightClaw, linear, grabber, rotate, front_left_grab, front_right_grab, side_grab;
+    private Servo leftClaw, rightClaw, linear, grabber, rotate, front_left_grab, front_right_grab, side_grab, capstonePitcher;
     private DigitalChannel lower_sensor, arm_limit;
     private float fwd, side, turn, power, lower_arm_stick, grabber_stick;
     private double clawOffset = 0.5;
@@ -131,6 +131,9 @@ public class Mecanum_Drive extends LinearOpMode {
         front_left_grab = hardwareMap.get(Servo.class, "fl_grab");
         front_right_grab = hardwareMap.get(Servo.class, "fr_grab");
 //        side_grab = hardwareMap.get(Servo.class, "side_grab");
+
+
+        capstonePitcher = hardwareMap.get(Servo.class, "capstone");
 
         // Sensor for lower arm
         lower_sensor = hardwareMap.get(DigitalChannel.class, "arm_lower_sensor");
@@ -251,6 +254,14 @@ public class Mecanum_Drive extends LinearOpMode {
             } else {
                 front_left_grab.setPosition(0.0);
                 front_right_grab.setPosition(0.65);
+            }
+
+            if( gamepad2.dpad_down || gamepad1.dpad_down)
+            {
+                capstonePitcher.setPosition(0);
+            }else if(gamepad2.dpad_up || gamepad1.dpad_up)
+            {
+                capstonePitcher.setPosition(0.35);
             }
 
             // User gamepad right bumper to move up and down the side grabber
@@ -451,7 +462,7 @@ public class Mecanum_Drive extends LinearOpMode {
         leftClaw.setPosition(0.39);
         rightClaw.setPosition(0.59);
         clawExpanded = false;
-        grabber.setPosition(0.748);
+        grabber.setPosition(0.8);
         grabberOffset = 0.0;
         clawOffset = 0.0;
         front_left_grab.setPosition(0.6);
