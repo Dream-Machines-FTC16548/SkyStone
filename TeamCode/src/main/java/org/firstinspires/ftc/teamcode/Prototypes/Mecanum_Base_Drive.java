@@ -23,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 @TeleOp(name="driveJava", group="Pushbot")
+@Disabled
 public class Mecanum_Base_Drive extends LinearOpMode {
 
     float rotate_angle = 0;
