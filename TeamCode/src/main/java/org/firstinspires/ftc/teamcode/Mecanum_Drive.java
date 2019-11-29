@@ -148,6 +148,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+        moveToPickPosition();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -335,13 +336,13 @@ public class Mecanum_Drive extends LinearOpMode {
             telemetry.addData("RCLAW=", rightClaw.getPosition());
             telemetry.addData("LCLAW", leftClaw.getPosition());
             telemetry.addData("GRAB=", grabber.getPosition());
-//            telemetry.addData("TGRAB=", target_grabber );
+            telemetry.addData("TGRAB=", target_grabber );
 //            telemetry.addData("Linear= ", linear.getPosition());
-//            telemetry.addData("Linear= ", linear_motor.getCurrentPosition());
+            telemetry.addData("Linear= ", linear_motor.getCurrentPosition());
 //            telemetry.addData("LFront= ", front_left_grab.getPosition());
 //            telemetry.addData("LRront= ", front_right_grab.getPosition());
 //            telemetry.addData("ARMSTK=", lower_arm_stick);
-//            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
+            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
 //            telemetry.addData("Gyro= ", gyro_assist);
             telemetry.addData("LF", frontLeft.getCurrentPosition());
             telemetry.addData("RF", frontRight.getCurrentPosition());
@@ -421,6 +422,45 @@ public class Mecanum_Drive extends LinearOpMode {
         linear_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
+
+    void moveToPickPosition() {
+        // Init claw and grabber positions
+
+        // Init linear servo position
+//        linear.setPosition(linear_initial);
+
+        // Initialize lower arm position
+        lowerArm.setPower(arm_up_power/3);
+        while (lowerArm.getCurrentPosition()<815) {
+            lowerArm.setTargetPosition(lowerArm.getCurrentPosition() + arm_down_step);
+        }
+        lowerArm.setPower(0);
+        lowerArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lowerArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Initialize arm motor position
+        linear_motor.setPower(linear_motor_up_power/3);
+        while (linear_motor.getCurrentPosition()<2697) {
+            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() + linear_motor_down_step);
+        }
+
+        linear_motor.setPower(0);
+        linear_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linear_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        leftClaw.setPosition(0.39);
+        rightClaw.setPosition(0.59);
+        clawExpanded = false;
+        grabber.setPosition(0.748);
+        grabberOffset = 0.0;
+        clawOffset = 0.0;
+        front_left_grab.setPosition(0.6);
+        front_right_grab.setPosition(0.1);
+        sleep(2000);
+
+    }
+
+
 
     /**
      * Resets the cumulative angle tracking to zero.
