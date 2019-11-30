@@ -214,6 +214,27 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        while (opModeIsActive())
+        {
+            int distance = 2000;
+            // Step 1: Move forward
+            int target_leftPos = -distance;
+            int target_rightPos = -distance;
+//            moveFwdAndBackForMilliseconds(0.25, 3000);
+            moveFwdAndBackForMilliseconds(0.25, 3000);
+
+            sleep(500);
+
+            int target_leftPos2 = distance;
+            int target_rightPos2 = distance;
+            //moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
+            moveFwdAndBackForMilliseconds(-0.25, 3000);
+            sleep(500);
+        }
+        sleep(500 );
+
+/*
+
 //        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
 
         // Step 1: Move forward
@@ -254,7 +275,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         moveSideway( -DRIVE_SPEED, -400, 1100 );
         sleep(100 );
         moveSidewayUntilColorFound( -0.3, COLOR_RED, 15);
-
+*/
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // S1: Forward 6 Inches with 4 Sec timeout
@@ -611,11 +632,11 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setPower(speed);
-        frontRight.setPower(speed);
-        backLeft.setPower(speed);
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
         backRight.setPower(speed);
 
         ElapsedTime     runtime = new ElapsedTime();
