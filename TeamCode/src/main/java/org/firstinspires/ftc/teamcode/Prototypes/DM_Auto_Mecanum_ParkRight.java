@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Prototypes;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -52,11 +52,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="Prototype: Auto Mecanum Park Left", group="Prototype")
+@Autonomous(name="DM: Auto Mecanum Park Right", group="Pushbot")
 @Disabled
-public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
+public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
 
     /* Declare OpMode members. */
 //    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
@@ -187,6 +186,7 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
         colorSensor2.enableLed(true);
 
+
         // Send telemetry message to indicate successful Encoder reset
         telemetry.addData("Status",  "Encoder Reset Done");
         telemetry.update();
@@ -216,33 +216,22 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
 
 //        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
 
-        while (opModeIsActive())
-        {
-            int distance = 2000;
-            // Step 1: Move forward
-            int target_leftPos = -distance;
-            int target_rightPos = -distance;
-            moveFwdAndBack(DRIVE_SPEED, target_leftPos, target_rightPos, 30000);
+        // Step 1: Move forward
+        int target_leftPos = -1000;
+        int target_rightPos = -1000;
+        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 100 );
 
-            sleep(500);
-
-            int target_leftPos2 = distance;
-            int target_rightPos2 = distance;
-            moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
-            sleep(500);
-        }
         sleep(500 );
-/*
-        // Step 2: Move Sideway to Right
-        target_leftPos += 2000;     // 1500
-        target_rightPos -= 3000;    // -3500
-        moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
+
+        // Step 2: Move Sideway to left
+        target_leftPos += -2000;     // 1500
+        target_rightPos -= -3000;    // -3500
+        moveSideway( -DRIVE_SPEED, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
         moveFwdUntilRange( 0.5, 3 );    // 1500 - x
         sleep(500 );                           // -3500 - x
-
 
         // Step 3: Put down front grabbers
         front_left_grab.setPosition(0.0);
@@ -260,10 +249,10 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         front_right_grab.setPosition(0.1);
         sleep(500 );
 
-        // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -600, 2600 );
+        // Step 6: Move Sideway to Right
+        moveSideway( DRIVE_SPEED, 600, -2600 );
         sleep(100 );
-        moveSidewayUntilColorFound( -0.3, COLOR_RED, 2);
+        moveSidewayUntilColorFound( 0.3, COLOR_BLUE, 6);
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
@@ -287,7 +276,7 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
 //        telemetry.addData("Status",  ">> S4 Started");
 //        telemetry.update();
 //        rotate(90, TURN_SPEED);
-*/
+
         // S5: Look for Skystone
 /*
         telemetry.addData("Status",  ">> S5 Started");
@@ -467,44 +456,38 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
 
     }
 
-    public void moveFwdAndBack( double power, int leftPos, int rightPos, int timeouts) {
+    public void moveFwdAndBack( double speed, int leftPos, int rightPos, int timeouts) {
 
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         frontLeft.setTargetPosition( leftPos );
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setTargetPosition( rightPos );
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-/*
-        backLeft.setTargetPosition( leftPos );
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setTargetPosition( rightPos );
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-*/
-/*
-        frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(-power);
-        backRight.setPower(-power);
-*/
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(-speed);
+
         ElapsedTime     runtime = new ElapsedTime();
 
         while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy()) && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
-//            if(leftPos<0)
-                correction = checkDirection();
-//            else
-               correction = 0;
+            if(leftPos<0)
+                correction = checkDirection() * Math.abs(speed);
+            else
+                correction = 0;
 
-            frontLeft.setPower(Range.clip(power + correction, -1, 1));
-            frontRight.setPower(Range.clip(power - correction, -1, 1));
-//            backLeft.setPower(Range.clip(power  + correction, -1, 1));
-//            backRight.setPower(Range.clip(power - correction, -1, 1));
-
+            correction =0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(speed - correction);
+            backLeft.setPower(-speed - correction);
+            backRight.setPower(-speed + correction);
 
             // Display it for the driver.
 //            telemetry.addData("LF", frontLeft.getCurrentPosition());
@@ -516,9 +499,7 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
             telemetry.addData("LB", backLeft.getPower());
             telemetry.addData("RB", backRight.getPower());
             telemetry.addData("Correction", correction);
-            telemetry.addData("power", power);
             telemetry.update();
-            sleep(50);
         }
 
         // Stop all motion;
@@ -526,12 +507,6 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
-        sleep(3000);
-
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 
@@ -788,27 +763,6 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         return globalAngle;
     }
 
-    private double getDeltaAngle()
-    {
-        // We experimentally determined the Z axis is the axis we want to use for heading angle.
-        // We have to process the angle because the imu works in euler angles so the Z axis is
-        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
-        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
-
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
-
-        if (deltaAngle < -180)
-            deltaAngle += 360;
-        else if (deltaAngle > 180)
-            deltaAngle -= 360;
-
-        return deltaAngle;
-    }
-
-
-
     /**
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
@@ -818,11 +772,11 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         // The gain value determines how sensitive the correction is to direction changes.
         // You will have to experiment with your robot to get small smooth direction changes
         // to stay on a straight line.
-        double correction, angle, gain = 0.03;
+        double correction, angle, gain = .10;
 
         angle = getAngle();
 
-        if (angle < 5 && angle > -5)
+        if (angle == 0)
             correction = 0;             // no adjustment.
         else
             correction = -angle;        // reverse sign of angle for correction.

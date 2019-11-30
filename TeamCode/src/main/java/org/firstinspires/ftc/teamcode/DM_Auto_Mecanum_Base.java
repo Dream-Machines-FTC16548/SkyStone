@@ -52,15 +52,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-@Autonomous(name="DM: Auto Mecanum Park Right", group="Pushbot")
+@Autonomous(name="DM: Auto Mecanum", group="DM#16548")
 //@Disabled
-public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
+public class DM_Auto_Mecanum_Base extends LinearOpMode {
 
     /* Declare OpMode members. */
 //    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
-    private DcMotor frontLeft, frontRight, backLeft, backRight;
-    private Servo front_left_grab, front_right_grab;
-    private DistanceSensor sensorRange;
+    protected DcMotor frontLeft, frontRight, backLeft, backRight;
+    protected Servo front_left_grab, front_right_grab;
+    protected DistanceSensor sensorRange;
     ColorSensor colorSensor;    // Hardware Device Object
     ColorSensor colorSensor2;
     float hsvValues[] = {0F,0F,0F};
@@ -70,7 +70,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
     int relativeLayoutId;
     View relativeLayout;
 
-    private ElapsedTime     runtime = new ElapsedTime();
+    protected ElapsedTime     runtime = new ElapsedTime();
 
     static final double     COUNTS_PER_MOTOR_REV    = 1440 / 2 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 / 3 ;     // This is < 1.0 if geared UP
@@ -104,13 +104,13 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
      * localization engine.
      */
-    private VuforiaLocalizer vuforia;
+    protected VuforiaLocalizer vuforia;
 
     /**
      * {@link #tfod} is the variable we will use to store our instance of the TensorFlow Object
      * Detection engine.
      */
-    private TFObjectDetector tfod;
+    protected TFObjectDetector tfod;
 
     @Override
     public void runOpMode() {
@@ -213,23 +213,46 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
+        while (opModeIsActive())
+        {
+            int distance = 2000;
+            // Step 1: Move forward
+            int target_leftPos = -distance;
+            int target_rightPos = -distance;
+//            moveFwdAndBackForMilliseconds(0.25, 3000);
+//            moveFwdAndBackForMilliseconds(0.25, 3000);
+            moveSidewayForMilliseconds(0.25, 3000);
+
+            sleep(500);
+
+            int target_leftPos2 = distance;
+            int target_rightPos2 = distance;
+            //moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
+//            moveFwdAndBackForMilliseconds(-0.25, 3000);
+            moveSidewayForMilliseconds(-0.25, 3000);
+            sleep(500);
+        }
+        sleep(500 );
+
+/*
+
 //        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
 
         // Step 1: Move forward
         int target_leftPos = -1000;
         int target_rightPos = -1000;
-        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 100 );
+        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 800 );
 
         sleep(500 );
 
-        // Step 2: Move Sideway to left
-        target_leftPos += -2000;     // 1500
-        target_rightPos -= -3000;    // -3500
-        moveSideway( -DRIVE_SPEED, target_leftPos, target_rightPos );
+        // Step 2: Move Sideway to Right
+        target_leftPos += 2500;     // 1500
+        target_rightPos -= 2500;    // -3500
+        moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
         sleep(500 );
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.5, 3 );    // 1500 - x
+        moveFwdUntilRange( 0.25, 3 );    // 1500 - x
         sleep(500 );                           // -3500 - x
 
         // Step 3: Put down front grabbers
@@ -238,9 +261,10 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         sleep(2000);
 
         // Step 4: Move backward
-        target_leftPos += 2500;     // 3000 - x
-        target_rightPos += 2500;    // - 2000 - x
-        moveFwdAndBack( -0.8, target_leftPos, target_rightPos, 100 );
+        target_leftPos += 2400;     // 3000 - x
+        target_rightPos += 2400;    // - 2000 - x
+        moveFwdAndBack( -0.8, (int)(target_leftPos*0.9), (int)(target_rightPos*0.9), 100 );
+//        moveFwdAndBack( -0.4, (int)(target_leftPos*0.2), (int)(target_rightPos*0.2), 100 );
         sleep(500 );
 
         // Step 5: Move front grabbers up
@@ -248,11 +272,11 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         front_right_grab.setPosition(0.1);
         sleep(500 );
 
-        // Step 6: Move Sideway to Right
-        moveSideway( DRIVE_SPEED, 600, -2600 );
+        // Step 6: Move Sideway to Left
+        moveSideway( -DRIVE_SPEED, -400, 1100 );
         sleep(100 );
-        moveSidewayUntilColorFound( 0.3, COLOR_BLUE, 6);
-
+        moveSidewayUntilColorFound( -0.3, COLOR_RED, 15);
+*/
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
         // S1: Forward 6 Inches with 4 Sec timeout
@@ -358,7 +382,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         }
     }
 
-    public void moveSideway( double speed, int leftPos, int rightPos ) {
+    protected void moveSideway( double speed, int leftPos, int rightPos ) {
 
         // Right = +ve speed; Left = -ve speed
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -379,7 +403,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy())) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)*0.5;
+            correction = checkDirection() * Math.abs(speed)*0.2;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -404,7 +428,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
     }
 
 
-    public void moveSidewayUntilColorFound( double speed, int color, int timeouts ) {
+    protected void moveSidewayUntilColorFound( double speed, int color, int timeouts ) {
 
         // Right = +ve speed; Left = -ve speed
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -447,6 +471,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
             telemetry.update();
         }
 
+        sleep(400);
         // Stop all motion;
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -455,7 +480,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
 
     }
 
-    public void moveFwdAndBack( double speed, int leftPos, int rightPos, int timeouts) {
+    protected void moveFwdAndBack( double speed, int leftPos, int rightPos, int timeouts) {
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -477,12 +502,10 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy()) && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
-            if(leftPos<0)
+//            if(leftPos<0)
                 correction = checkDirection() * Math.abs(speed);
-            else
-                correction = 0;
-
-            correction =0;
+//            else
+//                correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(-speed - correction);
@@ -509,7 +532,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
 
     }
 
-    public void moveFwdUntilRange( double speed, double distanceInch ) {
+    protected void moveFwdUntilRange( double speed, double distanceInch ) {
         speed = -speed;
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -556,9 +579,99 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
 
     }
 
+    protected void moveFwdAndBackForMilliseconds( double speed, double milliseconds ) {
+        speed = -speed;
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(speed);
+        backLeft.setPower(speed);
+        backRight.setPower(speed);
+
+        ElapsedTime     runtime = new ElapsedTime();
+
+        while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
+
+            // Use gyro to drive in a straight line.
+            correction = checkDirection() * Math.abs(speed);
+//            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(speed - correction);
+            backLeft.setPower(speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+    protected void moveSidewayForMilliseconds( double speed, double milliseconds ) {
+        speed = -speed;
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(speed);
+
+        ElapsedTime     runtime = new ElapsedTime();
+
+        while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
+
+            // Use gyro to drive in a straight line.
+            correction = checkDirection() * Math.abs(speed)/4;
+//            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(-speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
 
     /*
-    public void moveForwardUntilColorFound( double speed, int color_to_stop ) {
+    protected void moveForwardUntilColorFound( double speed, int color_to_stop ) {
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -728,7 +841,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
     /**
      * Resets the cumulative angle tracking to zero.
      */
-    private void resetAngle()
+    protected void resetAngle()
     {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -766,7 +879,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    private double checkDirection()
+    protected double checkDirection()
     {
         // The gain value determines how sensitive the correction is to direction changes.
         // You will have to experiment with your robot to get small smooth direction changes
@@ -790,7 +903,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
      * @param degrees Degrees to turn, + is left - is right
      */
     /*
-    private void rotate(int degrees, double power)
+    protected void rotate(int degrees, double power)
     {
         double  leftPower, rightPower;
 
@@ -856,7 +969,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
     /**
      * Initialize the Vuforia localization engine.
      */
-    private void initVuforia() {
+    protected void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          */
@@ -874,7 +987,7 @@ public class DM_Auto_Mecanum_ParkRight extends LinearOpMode {
     /**
      * Initialize the TensorFlow Object Detection engine.
      */
-    private void initTfod() {
+    protected void initTfod() {
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
