@@ -221,14 +221,16 @@ public class DM_Auto_Mecanum extends LinearOpMode {
             int target_leftPos = -distance;
             int target_rightPos = -distance;
 //            moveFwdAndBackForMilliseconds(0.25, 3000);
-            moveFwdAndBackForMilliseconds(0.25, 3000);
+//            moveFwdAndBackForMilliseconds(0.25, 3000);
+            moveSidewayForMilliseconds(0.25, 3000);
 
             sleep(500);
 
             int target_leftPos2 = distance;
             int target_rightPos2 = distance;
             //moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
-            moveFwdAndBackForMilliseconds(-0.25, 3000);
+//            moveFwdAndBackForMilliseconds(-0.25, 3000);
+            moveSidewayForMilliseconds(-0.25, 3000);
             sleep(500);
         }
         sleep(500 );
@@ -644,7 +646,7 @@ public class DM_Auto_Mecanum extends LinearOpMode {
         while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
+            correction = checkDirection() * Math.abs(speed)/4;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
