@@ -151,7 +151,6 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
-        moveToPickPosition();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -262,6 +261,11 @@ public class Mecanum_Drive extends LinearOpMode {
             }else if(gamepad2.dpad_up || gamepad1.dpad_up)
             {
                 capstonePitcher.setPosition(0.35);
+            }
+
+            if( gamepad2.dpad_left || gamepad2.dpad_right)
+            {
+                moveToPickPosition();
             }
 
             // User gamepad right bumper to move up and down the side grabber

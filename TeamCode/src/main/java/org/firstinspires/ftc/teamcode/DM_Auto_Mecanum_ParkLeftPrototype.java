@@ -35,6 +35,7 @@ import android.view.View;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -54,7 +55,7 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import com.qualcomm.robotcore.util.Range;
 
 @Autonomous(name="Prototype: Auto Mecanum Park Left", group="Prototype")
-//@Disabled
+@Disabled
 public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
 
     /* Declare OpMode members. */
@@ -222,20 +223,12 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
             int target_leftPos = -distance;
             int target_rightPos = -distance;
             moveFwdAndBack(DRIVE_SPEED, target_leftPos, target_rightPos, 30000);
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
 
             sleep(500);
 
             int target_leftPos2 = distance;
             int target_rightPos2 = distance;
             moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
-            frontLeft.setPower(0);
-            frontRight.setPower(0);
-            backLeft.setPower(0);
-            backRight.setPower(0);
             sleep(500);
         }
         sleep(500 );
@@ -485,12 +478,12 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         frontRight.setTargetPosition( rightPos );
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+/*
         backLeft.setTargetPosition( leftPos );
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setTargetPosition( rightPos );
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
+*/
 /*
         frontLeft.setPower(power);
         frontRight.setPower(power);
@@ -503,14 +496,14 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
 
             // Use gyro to drive in a straight line.
 //            if(leftPos<0)
-                correction = -  checkDirection();
+                correction = checkDirection();
 //            else
- //              correction = 0;
+               correction = 0;
 
             frontLeft.setPower(Range.clip(power + correction, -1, 1));
             frontRight.setPower(Range.clip(power - correction, -1, 1));
-            backLeft.setPower(Range.clip(power  + correction, -1, 1));
-            backRight.setPower(Range.clip(power - correction, -1, 1));
+//            backLeft.setPower(Range.clip(power  + correction, -1, 1));
+//            backRight.setPower(Range.clip(power - correction, -1, 1));
 
 
             // Display it for the driver.
@@ -534,6 +527,11 @@ public class DM_Auto_Mecanum_ParkLeftPrototype extends LinearOpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
         sleep(3000);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
     }
 
