@@ -35,6 +35,7 @@ import android.view.View;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -52,9 +53,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
-@Autonomous(name="DM: Auto Mecanum", group="DM#16548")
-//@Disabled
-public class DM_Auto_Mecanum_Base extends LinearOpMode {
+@Autonomous(name="DM: Auto Mecanum Base", group="DM#16548")
+@Disabled
+public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
 
     /* Declare OpMode members. */
 //    HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
@@ -112,8 +113,8 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
      */
     protected TFObjectDetector tfod;
 
-    @Override
-    public void runOpMode() {
+    protected  void initHardware()
+    {
         // Vuforia and Tensorflow related initialization
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
@@ -209,177 +210,6 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
         telemetry.update();
 
         resetAngle();
-
-        // Wait for the game to start (driver presses PLAY)
-        waitForStart();
-
-        while (opModeIsActive())
-        {
-            int distance = 2000;
-            // Step 1: Move forward
-            int target_leftPos = -distance;
-            int target_rightPos = -distance;
-//            moveFwdAndBackForMilliseconds(0.25, 3000);
-//            moveFwdAndBackForMilliseconds(0.25, 3000);
-            moveSidewayForMilliseconds(0.25, 3000);
-
-            sleep(500);
-
-            int target_leftPos2 = distance;
-            int target_rightPos2 = distance;
-            //moveFwdAndBack(-DRIVE_SPEED, target_leftPos2, target_rightPos2, 30000);
-//            moveFwdAndBackForMilliseconds(-0.25, 3000);
-            moveSidewayForMilliseconds(-0.25, 3000);
-            sleep(500);
-        }
-        sleep(500 );
-
-/*
-
-//        moveForwardUntilColorFound( DRIVE_SPEED, COLOR_RED );
-
-        // Step 1: Move forward
-        int target_leftPos = -1000;
-        int target_rightPos = -1000;
-        moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 800 );
-
-        sleep(500 );
-
-        // Step 2: Move Sideway to Right
-        target_leftPos += 2500;     // 1500
-        target_rightPos -= 2500;    // -3500
-        moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
-        sleep(500 );
-
-        // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.25, 3 );    // 1500 - x
-        sleep(500 );                           // -3500 - x
-
-        // Step 3: Put down front grabbers
-        front_left_grab.setPosition(0.0);
-        front_right_grab.setPosition(0.65);
-        sleep(2000);
-
-        // Step 4: Move backward
-        target_leftPos += 2400;     // 3000 - x
-        target_rightPos += 2400;    // - 2000 - x
-        moveFwdAndBack( -0.8, (int)(target_leftPos*0.9), (int)(target_rightPos*0.9), 100 );
-//        moveFwdAndBack( -0.4, (int)(target_leftPos*0.2), (int)(target_rightPos*0.2), 100 );
-        sleep(500 );
-
-        // Step 5: Move front grabbers up
-        front_left_grab.setPosition(0.6);
-        front_right_grab.setPosition(0.1);
-        sleep(500 );
-
-        // Step 6: Move Sideway to Left
-        moveSideway( -DRIVE_SPEED, -400, 1100 );
-        sleep(100 );
-        moveSidewayUntilColorFound( -0.3, COLOR_RED, 15);
-*/
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        // S1: Forward 6 Inches with 4 Sec timeout
-//        telemetry.addData("Status",  ">> S1 Started");
-//        telemetry.update();
-//        encoderDrive(DRIVE_SPEED_SLOW,  6,  6, 4.0);
-
-        // S2: Turn right 90 degrees
-//        telemetry.addData("Status",  ">> S2 Started");
-//        telemetry.update();
-//        encoderDrive(TURN_SPEED,   -12, -12, 4.0);
-//        rotate(-90, TURN_SPEED);
-
-        // S3: Reverse 6 Inches with 4 Sec timeout
-//        telemetry.addData("Status",  ">> S3 Started");
-//        telemetry.update();
-//        encoderDrive(DRIVE_SPEED_SLOW, 6, 6, 4.0);
-
-        // S4: Turn left 90 degrees
-//        telemetry.addData("Status",  ">> S4 Started");
-//        telemetry.update();
-//        rotate(90, TURN_SPEED);
-
-        // S5: Look for Skystone
-/*
-        telemetry.addData("Status",  ">> S5 Started");
-
-        telemetry.update();
-
-        boolean foundSkyStone = false;
-        while (opModeIsActive()) {
-            if (tfod != null) {
-                // getUpdatedRecognitions() will return null if no new information is available since
-                // the last time that call was made.
-                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                if (updatedRecognitions != null) {
-                    telemetry.addData("# Object Detected", updatedRecognitions.size());
-
-                    // step through the list of recognitions and display boundary info.
-                    for (Recognition recognition : updatedRecognitions) {
-                        if (recognition.getLabel().equalsIgnoreCase("SkyStone")) {
-                            telemetry.addData("Label: ", "SkyStone Found!");
-                            foundSkyStone = true;
-                        }
-
- */
-/*
-                        telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                recognition.getLeft(), recognition.getTop());
-                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                recognition.getRight(), recognition.getBottom());
-*/
-/*
-                    }
-                    telemetry.update();
-                }
-            }
-
-            if (foundSkyStone)
-                break;
-        }
-*/
-
-        // S6: Play sound
-        // create a sound parameter that holds the desired player parameters.
-
-        // S7: Turn left 90 degrees
-//        telemetry.addData("Status",  ">> S7 Started");
-//        telemetry.update();
-//        rotate(90, TURN_SPEED);
-
-        // S8: Move forward 108 inches with 10 Sec timeout
-//        telemetry.addData("Status",  ">> S8 Started");
-//        telemetry.update();
-//        encoderDrive(DRIVE_SPEED, 72, 72, 4.5);
-
-        // S9: Turn right 90 degrees
-//        telemetry.addData("Status",  ">> S9 Started");
-//        telemetry.update();
-//        rotate(-90, TURN_SPEED);
-
-        // S10: Move forward 24 inches with 6 Sec timeout
-//        telemetry.addData("Status",  ">> S10 Started");
-//        telemetry.update();
-//        encoderDrive(DRIVE_SPEED, 16, 16, 2.0);
-
-//        sleep(1000);     // pause for servos to move
-        // Set the panel back to the default color
-
-        relativeLayout.post(new Runnable() {
-            public void run() {
-                relativeLayout.setBackgroundColor(Color.WHITE);
-            }
-        });
-
-//        telemetry.addData("Path", "Complete");
-//        telemetry.update();
-
-        // Vuforia and Tensorflow related clean-up
-        if (tfod != null) {
-            tfod.shutdown();
-        }
     }
 
     protected void moveSideway( double speed, int leftPos, int rightPos ) {
@@ -429,7 +259,7 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
 
 
     protected void moveSidewayUntilColorFound( double speed, int color, int timeouts ) {
-
+        speed = - speed;
         // Right = +ve speed; Left = -ve speed
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -438,11 +268,6 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        frontLeft.setPower(speed);
-        frontRight.setPower(-speed);
-        backLeft.setPower(-speed);
-        backRight.setPower(speed);
 
         ElapsedTime     runtime = new ElapsedTime();
         boolean colorFound = false;
@@ -456,7 +281,7 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
                 colorFound = true;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
+            correction = checkDirection() * Math.abs(speed)/2;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -645,7 +470,7 @@ public class DM_Auto_Mecanum_Base extends LinearOpMode {
         while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)/4;
+            correction = checkDirection() * Math.abs(speed)/2;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);

@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Prototypes;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -54,7 +54,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Came
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 
 @Autonomous(name="DM: Auto Mecanum", group="Pushbot")
-//@Disabled
+@Disabled
 public class DM_Auto_Mecanum extends LinearOpMode {
 
     /* Declare OpMode members. */
