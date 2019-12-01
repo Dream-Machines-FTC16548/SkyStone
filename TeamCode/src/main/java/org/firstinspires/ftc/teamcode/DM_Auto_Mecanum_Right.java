@@ -47,124 +47,21 @@ public class DM_Auto_Mecanum_Right extends DM_Auto_Mecanum_Base {
 
     @Override
     public void runOpMode() {
-        // Vuforia and Tensorflow related initialization
-        // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
-        // first.
-        initVuforia();
 
-        if (ClassFactory.getInstance().canCreateTFObjectDetector()) {
-            initTfod();
-        } else {
-            telemetry.addData("Sorry!", "This device is not compatible with TFOD");
-        }
-
-        /**
-         * Activate TensorFlow Object Detection before we wait for the start command.
-         * Do it here so that the Camera Stream window will have the TensorFlow annotations visible.
-         **/
-        if (tfod != null) {
-            tfod.activate();
-        }
-
-        /*
-         * Initialize the drive system variables.
-         * The init() method of the hardware class does all the work here
-         */
-//        robot.init(hardwareMap);
-
-        frontLeft = hardwareMap.get(DcMotor.class, "front_left");
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight = hardwareMap.get(DcMotor.class, "front_right");
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft = hardwareMap.get(DcMotor.class, "back_left");
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight = hardwareMap.get(DcMotor.class, "back_right");
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
-
-        // Front grabber servos
-        front_left_grab = hardwareMap.get(Servo.class, "fl_grab");
-        front_right_grab = hardwareMap.get(Servo.class, "fr_grab");
-        front_left_grab.setPosition(0.6);
-        front_right_grab.setPosition(0.1);
-
-        // Distance Sensor
-        sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
-
-        // Send telemetry message to signify robot waiting;
-        telemetry.addData("Status", "Resetting Encoders");    //
-        telemetry.update();
-
-        // Gyro
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode                = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled      = false;
-
-        // Color Sensor related initialization
-        // get a reference to the RelativeLayout so we can change the background
-        // color of the Robot Controller app to match the hue detected by the RGB sensor.
-        relativeLayoutId = hardwareMap.appContext.getResources().getIdentifier("RelativeLayout", "id", hardwareMap.appContext.getPackageName());
-        relativeLayout = ((Activity) hardwareMap.appContext).findViewById(relativeLayoutId);
-
-        // get a reference to our ColorSensor object.
-        colorSensor = hardwareMap.get(ColorSensor.class, "color_sensor");
-        colorSensor.enableLed(true);
-        colorSensor2 = hardwareMap.get(ColorSensor.class, "color_sensor2");
-        colorSensor2.enableLed(true);
-
-
-        // Send telemetry message to indicate successful Encoder reset
-        telemetry.addData("Status",  "Encoder Reset Done");
-        telemetry.update();
-
-        // Retrieve and initialize the IMU. We expect the IMU to be attached to an I2C port
-        // on a Core Device Interface Module, configured to be a sensor of type "AdaFruit IMU",
-        // and named "imu".
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parameters);
-
-        telemetry.addData("Status", "IMU Calibrating");
-        telemetry.update();
-
-        // make sure the imu gyro is calibrated before continuing.
-        while (!imu.isGyroCalibrated()) {
-            sleep(50);
-            idle();
-        }
-
-        telemetry.addData("Status", "IMU Calibration Done");
-        telemetry.update();
-
-        resetAngle();
+        initHardware();
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         // Step 1: Move forward
-        int target_leftPos = -1000;
-        int target_rightPos = -1000;
-        //moveFwdAndBack( DRIVE_SPEED, target_leftPos, target_rightPos, 800 );
-        moveFwdAndBackForMilliseconds(0.25, 3000);
+        moveFwdAndBackForMilliseconds(0.5, 900);
 
-        sleep(500 );
-
-        // Step 2: Move Sideway to Right
-        target_leftPos += 2500;     // 1500
-        target_rightPos -= 2500;    // -3500
-        //moveSideway( DRIVE_SPEED, target_leftPos, target_rightPos );
-        moveSidewayForMilliseconds(-0.25, 2000);
-
-        sleep(500 );
+        // Step 2: Move Sideway to Left
+        moveSidewayForMilliseconds(0.3, 2500);
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.25, 3 );    // 1500 - x
-        sleep(500 );                           // -3500 - x
+        moveFwdUntilRange( 0.25, 2 );    // 1500 - x
+                                                           // -3500 - x
 
         // Step 3: Put down front grabbers
         front_left_grab.setPosition(0.0);
@@ -172,23 +69,19 @@ public class DM_Auto_Mecanum_Right extends DM_Auto_Mecanum_Base {
         sleep(2000);
 
         // Step 4: Move backward
-        target_leftPos += 2400;     // 3000 - x
-        target_rightPos += 2400;    // - 2000 - x
-        moveFwdAndBackForMilliseconds(-0.25, 4000);
-//        moveFwdAndBack( -0.8, (int)(target_leftPos*0.9), (int)(target_rightPos*0.9), 100 );
-//        moveFwdAndBack( -0.4, (int)(target_leftPos*0.2), (int)(target_rightPos*0.2), 100 );
+        moveFwdAndBackForMilliseconds(-0.5, 2500);
+        moveFwdAndBackForMilliseconds(-0.25, 1000);
         sleep(500 );
 
         // Step 5: Move front grabbers up
         front_left_grab.setPosition(0.6);
         front_right_grab.setPosition(0.1);
-        sleep(500 );
+        sleep(2000 );
 
         // Step 6: Move Sideway to Left
-//        moveSideway( -DRIVE_SPEED, -400, 1100 );
-        moveSidewayForMilliseconds(0.25, 2000);
+        moveSidewayForMilliseconds(-0.3, 3000);
         sleep(100 );
-        moveSidewayUntilColorFound( 0.3, COLOR_BLUE, 15);
+        moveSidewayUntilColorFound( -0.25, COLOR_BLUE, 100);
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
