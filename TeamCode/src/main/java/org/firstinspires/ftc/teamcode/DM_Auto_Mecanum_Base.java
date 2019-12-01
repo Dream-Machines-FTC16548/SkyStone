@@ -42,6 +42,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -494,83 +495,49 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
 
     }
 
+    protected void moveFwdAndBackForDistance( double speed, double inches, double timeoutInMilliseconds ) {
+        speed = -speed;
 
-    /*
-    protected void moveForwardUntilColorFound( double speed, int color_to_stop ) {
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setPower(speed);
         frontRight.setPower(speed);
         backLeft.setPower(speed);
         backRight.setPower(speed);
 
-        boolean colorDetected = false;
+        ElapsedTime     runtime = new ElapsedTime();
+        double startPostion = frontLeft.getCurrentPosition();
+        //COUNTS_PER_INCH
+        while (opModeIsActive() && runtime.milliseconds() < timeoutInMilliseconds ) {
 
-        while (opModeIsActive() &&
-                (frontLeft.isBusy() && frontRight.isBusy() && backLeft.isBusy() && backRight.isBusy()) &&
-                !colorDetected ) {
+            double leftDiff = startPostion + inches*COUNTS_PER_INCH + frontLeft.getCurrentPosition();
+            double slowDownFactor = 1.0;
+            if (leftDiff < 2 * COUNTS_PER_INCH) {
+                slowDownFactor = (double) leftDiff / (2 * COUNTS_PER_INCH);
+            }
 
-            // convert the RGB values to HSV values.
-            Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+            if( Math.abs(frontLeft.getCurrentPosition()-startPostion)<50)
+                break;
 
             // Use gyro to drive in a straight line.
-//            correction = checkDirection();
-            correction = 0;
-            frontLeft.setPower(speed + correction);
-            frontRight.setPower(speed - correction);
-            backLeft.setPower(speed + correction);
-            backRight.setPower(speed - correction);
-
-            int red_value = colorSensor.red();
-            int blue_value = colorSensor.blue();
-            int green_value = colorSensor.green();
-
-            int red_value2 = colorSensor2.red();
-            int blue_value2 = colorSensor2.blue();
-            int green_value2 = colorSensor2.green();
-
-            switch( color_to_stop ) {
-                case COLOR_RED:
-                    if ( ( red_value > COLOR_MIN && red_value > blue_value ) ||
-                           red_value2 > COLOR_MIN2 && red_value2 > blue_value2 )
-                        colorDetected = true;
-                    break;
-
-                case COLOR_BLUE:
-                    if ( ( blue_value > COLOR_MIN && blue_value > red_value ) ||
-                            blue_value2 > COLOR_MIN2 && blue_value2 > red_value2 )
-                        colorDetected = true;
-                    break;
-
-                default:
-                    break;
-            }
+            correction = checkDirection() * Math.abs(speed);
+            frontLeft.setPower((speed + correction)* slowDownFactor);
+            frontRight.setPower((speed - correction)* slowDownFactor);
+            backLeft.setPower((speed + correction)* slowDownFactor);
+            backRight.setPower((speed - correction)* slowDownFactor);
 
             // Display it for the driver.
             telemetry.addData("LF", frontLeft.getCurrentPosition());
             telemetry.addData("RF", frontRight.getCurrentPosition());
             telemetry.addData("LB", backLeft.getCurrentPosition());
             telemetry.addData("RB", backRight.getCurrentPosition());
-//            telemetry.addData("1:Red  ", red_value);
-//            telemetry.addData("1:Green", green_value);
-//            telemetry.addData("1:Blue ", blue_value);
-//            telemetry.addData("2:Red  ", red_value2);
-//            telemetry.addData("2:Green", green_value2);
-//            telemetry.addData("2:Blue ", blue_value2);
-//            telemetry.addData("Found: ", colorDetected);
-
-            // change the background color to match the color detected by the RGB sensor.
-            // pass a reference to the hue, saturation, and value array as an argument
-            // to the HSVToColor method.
-            relativeLayout.post(new Runnable() {
-                public void run() {
-                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
-                }
-            });
-
+            telemetry.addData("Correction", correction);
             telemetry.update();
         }
 
@@ -579,10 +546,233 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
+
+    }
+
+    protected void moveSidewayForDistance( double speed, double inches, double timeoutInMilliseconds ) {
+        speed = -speed;
+
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setPower(speed);
+        frontRight.setPower(-speed);
+        backLeft.setPower(-speed);
+        backRight.setPower(speed);
+
+        ElapsedTime     runtime = new ElapsedTime();
+        double startPostion = backLeft.getCurrentPosition();
+
+        while (opModeIsActive() && runtime.milliseconds() < timeoutInMilliseconds ) {
+
+            double leftDiff = startPostion + inches*COUNTS_PER_INCH + backLeft.getCurrentPosition();
+            double slowDownFactor = 1.0;
+            if (leftDiff < 2 * COUNTS_PER_INCH) {
+                slowDownFactor = (double) leftDiff / (2 * COUNTS_PER_INCH);
+            }
+
+            if( Math.abs(frontLeft.getCurrentPosition()-startPostion)<50)
+                break;
+
+            // Use gyro to drive in a straight line.
+            correction = checkDirection() * Math.abs(speed)/2;
+//            correction = 0;
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(-speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("LF", frontLeft.getCurrentPosition());
+            telemetry.addData("RF", frontRight.getCurrentPosition());
+            telemetry.addData("LB", backLeft.getCurrentPosition());
+            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
     }
 
 
+
+    // Gyro related routines
+    /**
+     * Resets the cumulative angle tracking to zero.
      */
+    protected void resetAngle()
+    {
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        globalAngle = 0;
+    }
+
+    /**
+     * Get current cumulative angle rotation from last reset.
+     * @return Angle in degrees. + = left, - = right.
+     */
+    private double getAngle()
+    {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
+    /**
+     * See if we are moving in a straight line and if not return a power correction value.
+     * @return Power adjustment, + is adjust left - is adjust right.
+     */
+    protected double checkDirection()
+    {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
+        double correction, angle, gain = .10;
+
+        angle = getAngle();
+
+        if (angle == 0)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * gain;
+
+        return correction;
+    }
+
+    /**
+     * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
+     * @param degrees Degrees to turn, + is left - is right
+     */
+    protected void rotate(int degrees, double power)
+    {
+        double  turn, frontleftpower, frontrightpower, backleftpower, backrightpower;
+
+        // restart imu movement tracking.
+        resetAngle();
+
+        // getAngle() returns + when rotating counter clockwise (left) and - when rotating
+        // clockwise (right).
+
+        if (degrees < 0) {
+            // turn right.
+            turn = -0.25;
+        } else if (degrees > 0) {
+            // turn left.
+            turn = 0.25;
+        } else
+            return;
+
+        // set power to rotate.
+        frontleftpower = Range.clip(power  - turn, -1, 1);
+        frontrightpower = Range.clip(power  + turn, -1, 1);
+        backleftpower = Range.clip(power  - turn, -1, 1);
+        backrightpower = Range.clip(power + turn, -1, 1);
+        frontLeft.setPower(frontleftpower);
+        frontRight.setPower(frontrightpower);
+        backLeft.setPower(backleftpower);
+        backRight.setPower(backrightpower);
+
+        // rotate until turn is completed.
+        if (degrees < 0) {
+            // On right turn we have to get off zero first.
+            while (opModeIsActive() && getAngle() == 0) {}
+
+            double diff = getAngle() - (double) degrees;
+            while (opModeIsActive() && diff > 0) {
+                if ( diff < 20.0 ) {
+                    frontLeft.setPower(frontleftpower* diff / 20);
+                    frontRight.setPower(frontrightpower* diff / 20);
+                    backLeft.setPower(backleftpower* diff / 20);
+                    backRight.setPower(backrightpower* diff / 20);
+                }
+                diff = getAngle() - degrees;
+            }
+        } else {
+            // left turn.
+            double diff = (double) degrees - getAngle();
+            while (opModeIsActive() && diff > 0) {
+                if ( diff < 20.0 ) {
+                    frontLeft.setPower(frontleftpower* diff / 20);
+                    frontRight.setPower(frontrightpower* diff / 20);
+                    backLeft.setPower(backleftpower* diff / 20);
+                    backRight.setPower(backrightpower* diff / 20);
+                }
+                diff = degrees - getAngle();
+            }
+        }
+
+        // turn the motors off.
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+        // wait for rotation to stop.
+        sleep(1000);
+
+        // reset angle tracking on new heading.
+        resetAngle();
+    }
+
+    // Vuforia and Tensorflow related functions
+    /**
+     * Initialize the Vuforia localization engine.
+     */
+    protected void initVuforia() {
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraDirection = CameraDirection.BACK;
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+
+        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
+    }
+
+    /**
+     * Initialize the TensorFlow Object Detection engine.
+     */
+    protected void initTfod() {
+        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minimumConfidence = 0.8;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
+    }
+
 
     /*
      *  Method to perfmorm a relative move, based on encoder counts.
@@ -662,162 +852,5 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
     }
 */
 
-    // Gyro related routines
-    /**
-     * Resets the cumulative angle tracking to zero.
-     */
-    protected void resetAngle()
-    {
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-        globalAngle = 0;
-    }
-
-    /**
-     * Get current cumulative angle rotation from last reset.
-     * @return Angle in degrees. + = left, - = right.
-     */
-    private double getAngle()
-    {
-        // We experimentally determined the Z axis is the axis we want to use for heading angle.
-        // We have to process the angle because the imu works in euler angles so the Z axis is
-        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
-        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
-
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
-
-        if (deltaAngle < -180)
-            deltaAngle += 360;
-        else if (deltaAngle > 180)
-            deltaAngle -= 360;
-
-        globalAngle += deltaAngle;
-
-        lastAngles = angles;
-
-        return globalAngle;
-    }
-
-    /**
-     * See if we are moving in a straight line and if not return a power correction value.
-     * @return Power adjustment, + is adjust left - is adjust right.
-     */
-    protected double checkDirection()
-    {
-        // The gain value determines how sensitive the correction is to direction changes.
-        // You will have to experiment with your robot to get small smooth direction changes
-        // to stay on a straight line.
-        double correction, angle, gain = .10;
-
-        angle = getAngle();
-
-        if (angle == 0)
-            correction = 0;             // no adjustment.
-        else
-            correction = -angle;        // reverse sign of angle for correction.
-
-        correction = correction * gain;
-
-        return correction;
-    }
-
-    /**
-     * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
-     * @param degrees Degrees to turn, + is left - is right
-     */
-    /*
-    protected void rotate(int degrees, double power)
-    {
-        double  leftPower, rightPower;
-
-        // restart imu movement tracking.
-        resetAngle();
-
-        // getAngle() returns + when rotating counter clockwise (left) and - when rotating
-        // clockwise (right).
-
-        if (degrees < 0) {
-            // turn right.
-            leftPower = power;
-            rightPower = -power;
-        } else if (degrees > 0) {
-            // turn left.
-            leftPower = -power;
-            rightPower = power;
-        } else
-            return;
-
-        // set power to rotate.
-        leftMotor.setPower(leftPower);
-        rightMotor.setPower(rightPower);
-
-        // rotate until turn is completed.
-        if (degrees < 0) {
-            // On right turn we have to get off zero first.
-            while (opModeIsActive() && getAngle() == 0) {}
-
-            double diff = getAngle() - (double) degrees;
-            while (opModeIsActive() && diff > 0) {
-                if ( diff < 20.0 ) {
-                    leftMotor.setPower(leftPower * diff / 20);
-                    rightMotor.setPower(rightPower * diff / 20);
-                }
-                diff = getAngle() - degrees;
-            }
-        } else {
-            // left turn.
-            double diff = (double) degrees - getAngle();
-            while (opModeIsActive() && diff > 0) {
-                if ( diff < 20.0 ) {
-                    leftMotor.setPower(leftPower * diff / 20.0);
-                    rightMotor.setPower(rightPower * diff / 20.0);
-                }
-                diff = degrees - getAngle();
-            }
-        }
-
-        // turn the motors off.
-        rightMotor.setPower(0);
-        leftMotor.setPower(0);
-
-        // wait for rotation to stop.
-        sleep(1000);
-
-        // reset angle tracking on new heading.
-        resetAngle();
-    }
-     */
-
-    // Vuforia and Tensorflow related functions
-    /**
-     * Initialize the Vuforia localization engine.
-     */
-    protected void initVuforia() {
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-         */
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = CameraDirection.BACK;
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
-        // Loading trackables is not necessary for the TensorFlow Object Detection engine.
-    }
-
-    /**
-     * Initialize the TensorFlow Object Detection engine.
-     */
-    protected void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-                "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minimumConfidence = 0.8;
-        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABEL_FIRST_ELEMENT, LABEL_SECOND_ELEMENT);
-    }
 }
