@@ -297,7 +297,7 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
             telemetry.update();
         }
 
-        sleep(400);
+        sleep(200);
         // Stop all motion;
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -358,7 +358,7 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
 
     }
 
-    protected void moveFwdUntilRange( double speed, double distanceInch ) {
+    protected void moveFwdUntilRange( double speed, double distanceInch, int timeouts ) {
         speed = -speed;
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -375,8 +375,9 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
         backRight.setPower(speed);
 
         double distance = sensorRange.getDistance(DistanceUnit.INCH);
+        ElapsedTime     runtime = new ElapsedTime();
 
-        while (opModeIsActive() && distance > distanceInch ) {
+        while (opModeIsActive() && distance > distanceInch && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
             correction = checkDirection() * Math.abs(speed);
@@ -683,10 +684,10 @@ public abstract class DM_Auto_Mecanum_Base extends LinearOpMode {
 
         if (degrees < 0) {
             // turn right.
-            turn = -0.25;
+            turn = -0.5;
         } else if (degrees > 0) {
             // turn left.
-            turn = 0.25;
+            turn = 0.5;
         } else
             return;
 
