@@ -179,7 +179,7 @@ public class Mecanum_Drive extends LinearOpMode {
                     turning = false;
                 }
 
-                // Moving in straight line (forward, backward or sideway) without turning; Add gyro assistance
+                // Moving in straight line (forward, backward or strafe) without turning; Add gyro assistance
                 if (gyro_assist)
                     correction = checkDirection();
                 else
@@ -193,10 +193,10 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
             // Arm movements
-            if (lower_arm_stick < 0 && lowerArm.getCurrentPosition() < 3000) {
+            if (opModeIsActive() && lower_arm_stick < 0 && lowerArm.getCurrentPosition() < 3000) {
                 lowerArm.setTargetPosition(lowerArm.getCurrentPosition() + arm_up_step);
                 lowerArm.setPower(arm_up_power);
-            } else if (lower_arm_stick > 0 && lower_sensor.getState()) {
+            } else if (opModeIsActive() && lower_arm_stick > 0 && lower_sensor.getState()) {
                 lowerArm.setTargetPosition(lowerArm.getCurrentPosition() - arm_down_step);
                 lowerArm.setPower(arm_down_power);
             } else
@@ -204,10 +204,10 @@ public class Mecanum_Drive extends LinearOpMode {
 
 
             // Linear motor movements
-            if (btn_y && linear_motor.getCurrentPosition() < linear_motor_end ) {
+            if (opModeIsActive() && btn_y && linear_motor.getCurrentPosition() < linear_motor_end ) {
                 linear_motor.setTargetPosition(lowerArm.getCurrentPosition() + linear_motor_up_step);
                 linear_motor.setPower(linear_motor_up_power);
-            } else if (btn_a && arm_limit.getState()) {
+            } else if (opModeIsActive() && btn_a && arm_limit.getState()) {
                 linear_motor.setTargetPosition(lowerArm.getCurrentPosition() - linear_motor_down_step);
                 linear_motor.setPower(linear_motor_down_power);
             } else
@@ -255,17 +255,18 @@ public class Mecanum_Drive extends LinearOpMode {
                 front_right_grab.setPosition(0.65);
             }
 
-            if( gamepad2.dpad_down || gamepad1.dpad_down)
+            if( gamepad1.dpad_down )
             {
                 capstonePitcher.setPosition(0);
-            }else if(gamepad2.dpad_up || gamepad1.dpad_up)
+            }else if(gamepad1.dpad_up )
             {
                 capstonePitcher.setPosition(0.35);
             }
 
-            if( gamepad2.dpad_left || gamepad2.dpad_right)
+            if( gamepad1.y && gamepad1.a)
             {
-                moveToPickPosition();
+                //moveToPickPosition();
+                //commented due to problems
             }
 
             // User gamepad right bumper to move up and down the side grabber
@@ -419,7 +420,7 @@ public class Mecanum_Drive extends LinearOpMode {
 //        linear.setPosition(linear_initial);
 
         // Initialize lower arm position
-        while (lower_sensor.getState()) {
+        while (opModeIsActive() && lower_sensor.getState()) {
             lowerArm.setTargetPosition(lowerArm.getCurrentPosition() - arm_down_step);
             lowerArm.setPower(arm_down_power);
         }
@@ -428,7 +429,7 @@ public class Mecanum_Drive extends LinearOpMode {
         lowerArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Initialize arm motor position
-        while (arm_limit.getState()) {
+        while (opModeIsActive() && arm_limit.getState()) {
             linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - linear_motor_down_step);
             linear_motor.setPower(linear_motor_down_power);
         }
@@ -446,7 +447,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Initialize lower arm position
         lowerArm.setPower(arm_up_power/3);
-        while (lowerArm.getCurrentPosition()<815) {
+        while (opModeIsActive() && lowerArm.getCurrentPosition()<815) {
             lowerArm.setTargetPosition(lowerArm.getCurrentPosition() + arm_down_step);
         }
         lowerArm.setPower(0);
@@ -455,7 +456,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Initialize arm motor position
         linear_motor.setPower(linear_motor_up_power/3);
-        while (linear_motor.getCurrentPosition()<2697) {
+        while (opModeIsActive() && linear_motor.getCurrentPosition()<2697) {
             linear_motor.setTargetPosition(linear_motor.getCurrentPosition() + linear_motor_down_step);
         }
 
