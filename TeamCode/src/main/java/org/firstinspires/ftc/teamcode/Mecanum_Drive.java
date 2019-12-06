@@ -33,6 +33,7 @@ public class Mecanum_Drive extends LinearOpMode {
     private boolean front_grabber_up = true;
     private boolean side_grabber_up = true;
     private double target_grabber = 0.0;
+    private double constant_F = -1.0;
 
 
     // Gyro related initialization
@@ -59,17 +60,19 @@ public class Mecanum_Drive extends LinearOpMode {
     public final static double linear_upper = 0.615;        // Linear servo upper limit
     public final static double linear_initial = linear_lower;
     public final static double linear_offset_max = 0.002;    // Max offset allowed to move linear servo
-    public final static double linear_motor_up_power = 1.0;     // Linear Motor up power
-    public final static double linear_motor_down_power = -1.0;  // Linear Motor down power
-    public final static int linear_motor_up_step = 100;      // Linear Motor position up
-    public final static int linear_motor_down_step = 100;    // Linear Motor position down
+    public final static double linear_motor_up_power = 0.8;     // Linear Motor up power
+    public final static double linear_motor_down_power = -0.8;  // Linear Motor down power
+    public final static int linear_motor_up_step = 50;      // Linear Motor position up
+    public final static int linear_motor_down_step = 50;    // Linear Motor position down
     public final static int linear_motor_initial = 0;        // Linear Motor initial position
-    public final static int linear_motor_end = 15000;        // Linear Motor end position
+    public final static int linear_motor_end = 3500;        // Linear Motor end position
     public final static double grabber_speed = 0.005;       // Grabber servo rotation rate
     public final static double arm_up_power = 1.0;          // Arm up movement rate
     public final static double arm_down_power = -1.0;       // Arm down movement rate
     public final static int arm_up_step = 30;               // Arm up movement position step
     public final static int arm_down_step = 30;             // Arm up movement position step
+    public final static double constantA = 8;
+    public final static double constantB = 25;
 
     @Override
     public void runOpMode() {
@@ -119,6 +122,7 @@ public class Mecanum_Drive extends LinearOpMode {
         // Linear motor
         linear_motor = hardwareMap.get(DcMotor.class, "linear");
         linear_motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        linear_motor.setDirection(DcMotor.Direction.REVERSE);
 
         // Claw servos
         leftClaw = hardwareMap.get(Servo.class, "left_claw");
@@ -196,20 +200,72 @@ public class Mecanum_Drive extends LinearOpMode {
             if (opModeIsActive() && lower_arm_stick < 0 && lowerArm.getCurrentPosition() < 3000) {
                 lowerArm.setTargetPosition(lowerArm.getCurrentPosition() + arm_up_step);
                 lowerArm.setPower(arm_up_power);
+                constant_F = -1.0;
             } else if (opModeIsActive() && lower_arm_stick > 0 && lower_sensor.getState()) {
                 lowerArm.setTargetPosition(lowerArm.getCurrentPosition() - arm_down_step);
                 lowerArm.setPower(arm_down_power);
+                constant_F = -1.0;
             } else
                 lowerArm.setPower(0.0);
 
 
             // Linear motor movements
             if (opModeIsActive() && btn_y && linear_motor.getCurrentPosition() < linear_motor_end ) {
-                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() + linear_motor_up_step);
+                int linear_original_pos = linear_motor.getCurrentPosition();
+                int linear_target_pos = linear_motor.getCurrentPosition() + linear_motor_up_step;
+                linear_motor.setTargetPosition(linear_target_pos);
                 linear_motor.setPower(linear_motor_up_power);
+                if ( constant_F < 0 ) {
+                    // Calculate constant F to keep
+                    double c = 19 + ( linear_original_pos * 7 / linear_motor_end );
+                    double L = 40 + ( lowerArm.getCurrentPosition() / 100 );
+                    constant_F = L * ( Math.pow(constantA,2.0) + Math.pow(constantB,2.0) - Math.pow(c,2.0) ) / ( 2 * constantA * constantB );
+                } else {
+                    // Calculate target position of lower arm position (L)
+//                    telemetry.addData("OLD:", lowerArm.getCurrentPosition());
+                    double c = 19 + ( linear_target_pos * 7 / linear_motor_end );
+                    double L = constant_F * 2 * constantA * constantB / ( Math.pow(constantA,2.0) + Math.pow(constantB,2.0) - Math.pow(c,2.0) );
+                    double targetPos = (L - 40) * 100;
+                    Double dbTargetPost = new Double( targetPos );
+                    lowerArm.setTargetPosition(dbTargetPost.intValue());
+                    lowerArm.setPower(arm_up_power);
+
+/*
+                    telemetry.addData("F:", constant_F );
+                    telemetry.addData("L:", L );
+                    telemetry.addData("NEW:", dbTargetPost );
+                    telemetry.update();
+
+ */
+                }
             } else if (opModeIsActive() && btn_a && arm_limit.getState()) {
-                linear_motor.setTargetPosition(lowerArm.getCurrentPosition() - linear_motor_down_step);
+                int linear_original_pos = linear_motor.getCurrentPosition();
+                int linear_target_pos = linear_motor.getCurrentPosition() - linear_motor_down_step;
+                linear_motor.setTargetPosition(linear_target_pos);
                 linear_motor.setPower(linear_motor_down_power);
+                if ( constant_F < 0 ) {
+                    // Calculate constant F to keep
+                    double c = 19 + ( linear_original_pos * 7 / linear_motor_end );
+                    double L = 40 + ( lowerArm.getCurrentPosition() / 100 );
+                    constant_F = L * ( Math.pow(constantA,2.0) + Math.pow(constantB,2.0) - Math.pow(c,2.0) ) / ( 2 * constantA * constantB );
+                } else {
+//                    telemetry.addData("OLD:", lowerArm.getCurrentPosition());
+                    // Calculate target position of lower arm position (L)
+                    double c = 19 + ( linear_target_pos * 7 / linear_motor_end );
+                    double L = constant_F * 2 * constantA * constantB / ( Math.pow(constantA,2.0) + Math.pow(constantB,2.0) - Math.pow(c,2.0) );
+                    double targetPos = (L - 40) * 100;
+                    Double dbTargetPost = new Double( targetPos );
+                    lowerArm.setTargetPosition(dbTargetPost.intValue());
+                    lowerArm.setPower(arm_down_power);
+
+/*
+                    telemetry.addData("F:", constant_F );
+                    telemetry.addData("L:", L );
+                    telemetry.addData("NEW:", dbTargetPost );
+                    telemetry.update();
+
+ */
+                }
             } else
                 linear_motor.setPower(0.0);
 
@@ -353,20 +409,21 @@ public class Mecanum_Drive extends LinearOpMode {
             telemetry.addData("LCLAW", leftClaw.getPosition());
             telemetry.addData("GRAB=", grabber.getPosition());
             telemetry.addData("TGRAB=", target_grabber );
+
 //            telemetry.addData("Linear= ", linear.getPosition());
-            telemetry.addData("Linear= ", linear_motor.getCurrentPosition());
+//            telemetry.addData("Linear= ", linear_motor.getCurrentPosition());
 //            telemetry.addData("LFront= ", front_left_grab.getPosition());
 //            telemetry.addData("LRront= ", front_right_grab.getPosition());
 //            telemetry.addData("ARMSTK=", lower_arm_stick);
-            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
-//            telemetry.addData("Gyro= ", gyro_assist);
-            telemetry.addData("LF", frontLeft.getCurrentPosition());
-            telemetry.addData("RF", frontRight.getCurrentPosition());
-            telemetry.addData("LB", backLeft.getCurrentPosition());
-            telemetry.addData("RB", backRight.getCurrentPosition());
-            telemetry.addData("Power:", power);
-            telemetry.addData("Side:", side);
-            telemetry.addData("Turn:", turn);
+//            telemetry.addData("Arm= ", lowerArm.getCurrentPosition());
+            telemetry.addData("Gyro= ", gyro_assist);
+//            telemetry.addData("LF", frontLeft.getCurrentPosition());
+//            telemetry.addData("RF", frontRight.getCurrentPosition());
+//            telemetry.addData("LB", backLeft.getCurrentPosition());
+//            telemetry.addData("RB", backRight.getCurrentPosition());
+//            telemetry.addData("Power:", power);
+//            telemetry.addData("Side:", side);
+//            telemetry.addData("Turn:", turn);
             telemetry.update();
         }
     }
