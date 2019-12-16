@@ -46,36 +46,58 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         waitForStart();
 
         // Step 1: Move forward
-        moveFwdAndBackForMilliseconds(0.5, 900);
+        telemetry.addData("Status: ", 1);
+        telemetry.update();
+        moveFwdAndBackForMilliseconds(0.4, 500);
 
         // Step 2: Move forward until certain range
-        moveFwdUntilRange( 0.25, 2.3, 2 );    // 1500 - x
+        telemetry.addData("Status: ", 2);
+        telemetry.update();
+        moveFwdUntilRange( 0.2, 1.5, 3 );
 
         // Step 3: Move Sideway to Left until Skystone is found
-        moveSidewayUntilSkystoneFound( -0.25, 5000 );
+        telemetry.addData("Status: ", 3);
+        telemetry.update();
+//        moveSidewayUntilSkystoneFound( -0.25, 5000 );
+        moveSidewayForMilliseconds(0.15, 200);
 
         // Step 4: Put down front grabbers
-        front_left_grab.setPosition(0.0);
+        telemetry.addData("Status: ", 4);
+        telemetry.update();
+//        front_left_grab.setPosition(0.0);
         front_right_grab.setPosition(0.65);
-        sleep(2000);
+        sleep(500);
 
         // Step 5: Move backward a bit
-        moveFwdAndBackForMilliseconds(-0.25, 1300);
+        telemetry.addData("Status: ", 5);
+        telemetry.update();
+        moveFwdAndBackForMilliseconds(-0.25, 1500);
         sleep(500 );
 
-        // Step 6: Move Sideway to Right
-        moveSidewayForMilliseconds(0.5, 3000);
+        // Step 6: Move Sideway to Right to line
+        telemetry.addData("Status: ", 6);
+        telemetry.update();
+        moveSidewayUntilColorFound(-0.35, COLOR_RED, 10 );
         sleep(100 );
 
+        // Step 6.5 Move Sideway to Right
+        telemetry.addData("Status: ", 6.5);
+        telemetry.update();
+        moveSidewayForMilliseconds( -0.4, 1000 );
+
         // Step 7: Move front grabbers up
-        front_left_grab.setPosition(0.6);
+        telemetry.addData("Status: ", 7);
+        telemetry.update();
+//        front_left_grab.setPosition(0.6);
         front_right_grab.setPosition(0.1);
-        sleep(2000 );
+        sleep(500 );
 
         // Step 8: Move Sideway to Left to park
+        telemetry.addData("Status: ", 8);
+        telemetry.update();
 //        moveSidewayForMilliseconds(-0.3, 3000);
 //        sleep(100 );
-        moveSidewayUntilColorFound( -0.25, COLOR_RED, 100);
+        moveSidewayUntilColorFound( 0.35, COLOR_RED, 5);
 
 //        sleep(1000);     // pause for servos to move
         // Set the panel back to the default color

@@ -45,7 +45,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -214,6 +213,9 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         telemetry.update();
 
         resetAngle();
+
+        telemetry.addData("Status", "Initialization Done");
+        telemetry.update();
     }
 
     protected void moveSideway( double speed, int leftPos, int rightPos ) {
@@ -272,6 +274,8 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         ElapsedTime     runtime = new ElapsedTime();
         boolean colorFound = false;
@@ -285,7 +289,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                 colorFound = true;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)/2;
+            correction = checkDirection() * Math.abs(speed) * 0.4;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -293,10 +297,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
             backRight.setPower(speed - correction);
 
             // Display it for the driver.
-            telemetry.addData("LF", frontLeft.getCurrentPosition());
-            telemetry.addData("RF", frontRight.getCurrentPosition());
-            telemetry.addData("LB", backLeft.getCurrentPosition());
-            telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Correction", correction);
+            telemetry.addData("LF", frontLeft.getPower());
+            telemetry.addData("RF", frontRight.getPower());
+            telemetry.addData("LB", backLeft.getPower());
+            telemetry.addData("RB", backRight.getPower());
             telemetry.update();
         }
 
@@ -455,11 +460,12 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
             distance = sensorRange.getDistance(DistanceUnit.INCH);
 
             // Display it for the driver.
-            telemetry.addData("LF", frontLeft.getCurrentPosition());
-            telemetry.addData("RF", frontRight.getCurrentPosition());
-            telemetry.addData("LB", backLeft.getCurrentPosition());
-            telemetry.addData("RB", backRight.getCurrentPosition());
-            telemetry.addData("Correction", correction);
+//            telemetry.addData("LF", frontLeft.getCurrentPosition());
+//            telemetry.addData("RF", frontRight.getCurrentPosition());
+//            telemetry.addData("LB", backLeft.getCurrentPosition());
+//            telemetry.addData("RB", backRight.getCurrentPosition());
+//            telemetry.addData("Correction", correction);
+            telemetry.addData("Distance=", distance);
             telemetry.update();
         }
 
@@ -526,6 +532,8 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setPower(speed);
         frontRight.setPower(-speed);
@@ -537,7 +545,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)/2;
+            correction = checkDirection() * Math.abs(speed) * 0.4;
 //            correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
@@ -819,7 +827,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam");
+//        parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam");
 
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
