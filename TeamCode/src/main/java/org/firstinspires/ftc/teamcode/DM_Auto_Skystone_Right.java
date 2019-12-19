@@ -58,8 +58,8 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         // Step 3: Move Sideway to Left until Skystone is found
         telemetry.addData("Status: ", 3);
         telemetry.update();
-//        moveSidewayUntilSkystoneFound( -0.25, 5000 );
-        moveSidewayForMilliseconds(0.15, 200);
+        moveSidewayUntilSkystoneFound( 0.2, 5000 );
+//        moveSidewayForMilliseconds(0.15, 200);
 
         // Step 4: Put down front grabbers
         telemetry.addData("Status: ", 4);
