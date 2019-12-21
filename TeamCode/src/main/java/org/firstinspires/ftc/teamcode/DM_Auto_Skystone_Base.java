@@ -85,6 +85,9 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
     static final double     DRIVE_SPEED_SLOW        = 0.4;
     static final double     DRIVE_SPEED             = 0.7;
     static final double     TURN_SPEED              = 0.15;
+    static final double     TARGET_SKYSTONE_LEFT_POS    = 370.0;
+    static final double     TARGET_SKYSTONE_RIGHT_POS   = 900.0;
+    static final boolean    fGyroAssisted           = true;
     boolean                 soundPlaying            = false;
 
     public final static int     COLOR_RED = 1;
@@ -205,15 +208,17 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         telemetry.update();
 
         // make sure the imu gyro is calibrated before continuing.
-        while (!imu.isGyroCalibrated()) {
-            sleep(50);
-            idle();
+        if ( fGyroAssisted ) {
+            while (!imu.isGyroCalibrated()) {
+                sleep(50);
+                idle();
+            }
+
+            resetAngle();
         }
 
         telemetry.addData("Status", "IMU Calibration Done");
         telemetry.update();
-
-        resetAngle();
 
         telemetry.addData("Status", "Initialization Done");
         telemetry.update();
@@ -240,8 +245,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy())) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)*0.2;
-//            correction = 0;
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed)*0.2;
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
             backLeft.setPower(-speed + correction);
@@ -290,8 +298,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                 colorFound = true;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed) * 0.4;
-//            correction = 0;
+            if (fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed) * 0.4;
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
             backLeft.setPower(-speed + correction);
@@ -313,6 +324,12 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         backLeft.setPower(0);
         backRight.setPower(0);
 
+    }
+
+    private boolean objectWithinTargetHorizontalRange( double leftPos, double rightPos ) {
+        if ( leftPos >= TARGET_SKYSTONE_LEFT_POS /* && rightPos <= TARGET_SKYSTONE_RIGHT_POS */ )
+            return true;
+        return false;
     }
 
     protected void moveSidewayUntilSkystoneFound( double speed, int timeouts ) {
@@ -340,21 +357,26 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                     int i = 0;
                     for (Recognition recognition : updatedRecognitions) {
                         if ( recognition.getLabel().equalsIgnoreCase( LABEL_SKYSTONE )) {
-                            skyStoneFound = true;
+                            if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight()))
+                                skyStoneFound = true;
                             telemetry.addData( "Staus: ", String.format("Skystone Found"));
-                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                    recognition.getLeft(), recognition.getTop());
-                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                    recognition.getRight(), recognition.getBottom());
+                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f",
+                                    recognition.getLeft());
+                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f",
+                                    recognition.getRight());
                             telemetry.update();
+//                            sleep(1000);
                         }
                     }
                 }
             }
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)/2;
-//            correction = 0;
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed)/2;
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
             backLeft.setPower(-speed + correction);
@@ -399,10 +421,14 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && (frontLeft.isBusy() && frontRight.isBusy()) && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
-//            if(leftPos<0)
+            if ( fGyroAssisted )
                 correction = checkDirection() * Math.abs(speed);
-//            else
-//                correction = 0;
+            else
+                correction = 0;
+
+            telemetry.addData("In move: ", 6);
+            telemetry.update();
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(-speed - correction);
@@ -417,6 +443,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
             telemetry.addData("RF", frontRight.getPower());
             telemetry.addData("LB", backLeft.getPower());
             telemetry.addData("RB", backRight.getPower());
+            telemetry.addData("Speed: ", speed);
             telemetry.addData("Correction", correction);
             telemetry.update();
         }
@@ -451,8 +478,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && distance > distanceInch && runtime.seconds()< timeouts) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
-//            correction = 0;
+            if (fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed);
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(speed + correction);
@@ -499,8 +529,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
-//            correction = 0;
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed);
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(speed - correction);
             backLeft.setPower(speed + correction);
@@ -511,6 +544,8 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
             telemetry.addData("RF", frontRight.getCurrentPosition());
             telemetry.addData("LB", backLeft.getCurrentPosition());
             telemetry.addData("RB", backRight.getCurrentPosition());
+            telemetry.addData("Speed", speed);
+            telemetry.addData("Second", milliseconds);
             telemetry.addData("Correction", correction);
             telemetry.update();
         }
@@ -546,8 +581,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         while (opModeIsActive() && runtime.milliseconds() < milliseconds ) {
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed) * 0.4;
-//            correction = 0;
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed) * 0.4;
+            else
+                correction = 0;
+
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
             backLeft.setPower(-speed + correction);
@@ -601,7 +639,11 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                 break;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed);
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed);
+            else
+                correction = 0;
+
             frontLeft.setPower((speed + correction)* slowDownFactor);
             frontRight.setPower((speed - correction)* slowDownFactor);
             backLeft.setPower((speed + correction)* slowDownFactor);
@@ -655,8 +697,10 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                 break;
 
             // Use gyro to drive in a straight line.
-            correction = checkDirection() * Math.abs(speed)/2;
-//            correction = 0;
+            if ( fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed)/2;
+            else
+                correction = 0;
             frontLeft.setPower(speed + correction);
             frontRight.setPower(-speed - correction);
             backLeft.setPower(-speed + correction);
