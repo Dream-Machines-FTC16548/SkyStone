@@ -48,18 +48,18 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         // Step 1: Move forward
         telemetry.addData("Status: ", 1);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.4, 500);
+        moveFwdAndBackForMilliseconds(0.4, 800);
 
-        // Step 2: Move forward until certain range
+        // Step 2: Move Sideway to Left until Skystone is found
         telemetry.addData("Status: ", 2);
         telemetry.update();
-        moveFwdUntilRange( 0.2, 1.5, 3 );
+        moveSidewayUntilSkystoneFound( 0.15, 5000 );
+//        moveSidewayForMilliseconds(0.15, 200);
 
-        // Step 3: Move Sideway to Left until Skystone is found
+        // Step 3: Move forward until certain range
         telemetry.addData("Status: ", 3);
         telemetry.update();
-        moveSidewayUntilSkystoneFound( 0.2, 5000 );
-//        moveSidewayForMilliseconds(0.15, 200);
+        moveFwdUntilRange( 0.2, 1.2, 3 );
 
         // Step 4: Put down front grabbers
         telemetry.addData("Status: ", 4);
@@ -80,20 +80,20 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         moveSidewayUntilColorFound(-0.35, COLOR_RED, 10 );
         sleep(100 );
 
-        // Step 6.5 Move Sideway to Right
-        telemetry.addData("Status: ", 6.5);
+        // Step 7 Move Sideway to Right
+        telemetry.addData("Status: ", 7);
         telemetry.update();
         moveSidewayForMilliseconds( -0.4, 1000 );
 
-        // Step 7: Move front grabbers up
-        telemetry.addData("Status: ", 7);
+        // Step 8: Move front grabbers up
+        telemetry.addData("Status: ", 8);
         telemetry.update();
 //        front_left_grab.setPosition(0.6);
         front_right_grab.setPosition(0.1);
         sleep(500 );
 
-        // Step 8: Move Sideway to Left to park
-        telemetry.addData("Status: ", 8);
+        // Step 9: Move Sideway to Left to park
+        telemetry.addData("Status: ", 9);
         telemetry.update();
 //        moveSidewayForMilliseconds(-0.3, 3000);
 //        sleep(100 );
