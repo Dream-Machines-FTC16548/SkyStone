@@ -101,12 +101,12 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         telemetry.update();
 //        moveSidewayForMilliseconds(-0.3, 3000);
 //        sleep(100 );
-        moveSidewayUntilColorFound( 0.35, COLOR_BLUE, 5);
+        moveSidewayUntilColorFound( -0.35, COLOR_BLUE, 5);
 
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.25, 1000);
+        moveFwdAndBackForMilliseconds(0.25, 900);
         sleep(500 );
 
 

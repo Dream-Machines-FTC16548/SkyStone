@@ -106,7 +106,7 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.25, 1000);
+        moveFwdAndBackForMilliseconds(0.25, 900);
         sleep(500 );
 
 
