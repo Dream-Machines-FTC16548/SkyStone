@@ -283,8 +283,8 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         ElapsedTime     runtime = new ElapsedTime();
         boolean colorFound = false;
@@ -332,6 +332,95 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
         return false;
     }
 
+    protected boolean SkyStoneFound(){
+        boolean skyStoneFound = false;
+        if (tfod != null) {
+            // getUpdatedRecognitions() will return null if no new information is available since
+            // the last time that call was made.
+            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+            if (updatedRecognitions != null) {
+                telemetry.addData("# Object Detected", updatedRecognitions.size());
+                // step through the list of recognitions and display boundary info.
+                int i = 0;
+                for (Recognition recognition : updatedRecognitions) {
+                    if ( recognition.getLabel().equalsIgnoreCase( LABEL_SKYSTONE )) {
+                        if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight()))
+                            skyStoneFound = true;
+
+                        telemetry.addData( "Staus: ", String.format("Skystone Found"));
+                        telemetry.addData(String.format("  left,top (%d)", i), "%.03f",
+                                recognition.getLeft());
+                        telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f",
+                                recognition.getRight());
+                        telemetry.update();
+//                            sleep(1000);
+                    }
+
+                    if( skyStoneFound ){
+                        break;
+                    }
+                }
+            }
+        }
+
+        return skyStoneFound;
+    }
+
+
+    protected void moveSidewayUntilSkystoneFoundV2( double speed, int timeouts ) {
+        speed = - speed;
+        // Right = +ve speed; Left = -ve speed
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        ElapsedTime     runtime = new ElapsedTime();
+        boolean skyStoneFound = false;
+
+        while (opModeIsActive() && !skyStoneFound  && runtime.seconds()<timeouts) {
+
+            skyStoneFound = SkyStoneFound();
+
+            if(skyStoneFound) {
+                break;
+            }
+            // Use gyro to drive in a straight line.
+            if (fGyroAssisted )
+                correction = checkDirection() * Math.abs(speed) * 0.4;
+            else
+                correction = 0;
+
+            frontLeft.setPower(speed + correction);
+            frontRight.setPower(-speed - correction);
+            backLeft.setPower(-speed + correction);
+            backRight.setPower(speed - correction);
+
+            // Display it for the driver.
+            telemetry.addData("Correction", correction);
+            telemetry.addData("LF", frontLeft.getPower());
+            telemetry.addData("RF", frontRight.getPower());
+            telemetry.addData("LB", backLeft.getPower());
+            telemetry.addData("RB", backRight.getPower());
+            telemetry.update();
+        }
+
+        //sleep(200);
+        // Stop all motion;
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+
+
     protected void moveSidewayUntilSkystoneFound( double speed, int timeouts ) {
         speed = - speed;
         // Right = +ve speed; Left = -ve speed
@@ -342,6 +431,8 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        backRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         ElapsedTime     runtime = new ElapsedTime();
         boolean skyStoneFound = false;

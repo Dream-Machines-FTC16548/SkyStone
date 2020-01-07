@@ -167,7 +167,7 @@ public class Mecanum_Drive extends LinearOpMode {
 
         // Setting initial positions for claw, grabber, linear servo and arm
         // Skipping initiation at the beginning
-//        initializePositions();
+        initializePositions();
 
 
         telemetry.addData("Status", "Initialized");

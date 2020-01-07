@@ -33,9 +33,9 @@ import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="DM: Auto Skystone Park Right", group="DM#16548")
+@Autonomous(name="DM: Auto Skystone Park Left", group="DM#16548")
 //@Disabled
-public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
+public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
 
     @Override
     public void runOpMode() {
@@ -50,10 +50,10 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         telemetry.update();
         moveFwdAndBackForMilliseconds(0.4, 860);
 
-            // Step 2: Move Sideway to Left until Skystone is found
+            // Step 2: Move Sideway to Right until Skystone is found
         telemetry.addData("Status: ", 2);
         telemetry.update();
-        moveSidewayUntilSkystoneFoundV2( 0.16, 8000 );
+        moveSidewayUntilSkystoneFoundV2( -0.16, 8000 );
 //        moveSidewayForMilliseconds(0.15, 200);
 
         // Step 3: Move forward until certain range
@@ -78,16 +78,16 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         front_right_grab.setPosition(0.52);
         sleep(500);
 
-        // Step 6: Move Sideway to Right to line
+        // Step 6: Move Sideway to Left to line
         telemetry.addData("Status: ", 6);
         telemetry.update();
-        moveSidewayUntilColorFound(-0.35, COLOR_RED, 20 );
+        moveSidewayUntilColorFound(0.35, COLOR_BLUE, 20 );
         sleep(100 );
 
-        // Step 7 Move Sideway to Right
+        // Step 7 Move Sideway to Left
         telemetry.addData("Status: ", 7);
         telemetry.update();
-        moveSidewayForMilliseconds( -0.4, 500 );
+        moveSidewayForMilliseconds( 0.4, 500 );
 
         // Step 8: Move front grabbers up
         telemetry.addData("Status: ", 8);
@@ -96,12 +96,12 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         front_right_grab.setPosition(0.1);
         sleep(500 );
 
-        // Step 9: Move Sideway to Left to park
+        // Step 9: Move Sideway to Right to park
         telemetry.addData("Status: ", 9);
         telemetry.update();
 //        moveSidewayForMilliseconds(-0.3, 3000);
 //        sleep(100 );
-        moveSidewayUntilColorFound( 0.35, COLOR_RED, 5);
+        moveSidewayUntilColorFound( 0.35, COLOR_BLUE, 5);
 
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
