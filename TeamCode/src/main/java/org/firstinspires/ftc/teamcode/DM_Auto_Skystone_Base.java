@@ -86,7 +86,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
     static final double     DRIVE_SPEED             = 0.7;
     static final double     TURN_SPEED              = 0.15;
     static final double     TARGET_SKYSTONE_LEFT_POS    = 370.0;
-    static final double     TARGET_SKYSTONE_RIGHT_POS   = 900.0;
+    static final double     TARGET_SKYSTONE_RIGHT_POS   = 300.0;
     static final boolean    fGyroAssisted           = true;
     boolean                 soundPlaying            = false;
 
@@ -326,13 +326,18 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
     }
 
-    private boolean objectWithinTargetHorizontalRange( double leftPos, double rightPos ) {
-        if ( leftPos >= TARGET_SKYSTONE_LEFT_POS /* && rightPos <= TARGET_SKYSTONE_RIGHT_POS */ )
-            return true;
+    private boolean objectWithinTargetHorizontalRange( double leftPos, double rightPos, boolean checkLeft ) {
+        if ( checkLeft ) {
+            if (leftPos >= TARGET_SKYSTONE_LEFT_POS /* && rightPos <= TARGET_SKYSTONE_RIGHT_POS */)
+                return true;
+        } else {
+            if ( rightPos <= TARGET_SKYSTONE_RIGHT_POS )
+                return true;
+        }
         return false;
     }
 
-    protected boolean SkyStoneFound(){
+    protected boolean SkyStoneFound( boolean checkLeft ){
         boolean skyStoneFound = false;
         if (tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -344,7 +349,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                 int i = 0;
                 for (Recognition recognition : updatedRecognitions) {
                     if ( recognition.getLabel().equalsIgnoreCase( LABEL_SKYSTONE )) {
-                        if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight()))
+                        if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight(), checkLeft ))
                             skyStoneFound = true;
 
                         telemetry.addData( "Staus: ", String.format("Skystone Found"));
@@ -367,7 +372,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
     }
 
 
-    protected void moveSidewayUntilSkystoneFoundV2( double speed, int timeouts ) {
+    protected void moveSidewayUntilSkystoneFoundV2( double speed, int timeouts, boolean checkLeft ) {
         speed = - speed;
         // Right = +ve speed; Left = -ve speed
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -385,7 +390,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         while (opModeIsActive() && !skyStoneFound  && runtime.seconds()<timeouts) {
 
-            skyStoneFound = SkyStoneFound();
+            skyStoneFound = SkyStoneFound( checkLeft );
 
             if(skyStoneFound) {
                 break;
@@ -448,7 +453,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
                     int i = 0;
                     for (Recognition recognition : updatedRecognitions) {
                         if ( recognition.getLabel().equalsIgnoreCase( LABEL_SKYSTONE )) {
-                            if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight()))
+                            if ( objectWithinTargetHorizontalRange( recognition.getLeft(), recognition.getRight(), true ))
                                 skyStoneFound = true;
                             telemetry.addData( "Staus: ", String.format("Skystone Found"));
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f",
