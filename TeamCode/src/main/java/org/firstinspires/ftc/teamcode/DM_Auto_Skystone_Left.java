@@ -59,7 +59,7 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         // Step 3: Move forward until certain range
         telemetry.addData("Status: ", 3);
         telemetry.update();
-        moveFwdUntilRange( 0.2, 1.2, 6 );
+        moveFwdUntilRange( 0.1, 1.2, 6 );
 
         // Step 4: Put down front grabbers
         telemetry.addData("Status: ", 4);
@@ -71,11 +71,11 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         // Step 5: Move backward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(-0.25, 1800);
+        moveFwdAndBackForMilliseconds(-0.25, 2100);
         sleep(500 );
 
         // raise up the grabber a little to reduce friction of skystone
-        front_left_grab.setPosition(0.05);
+        front_left_grab.setPosition(0.2);
         sleep(500);
 
         // Step 6: Move Sideway to Left to line
@@ -87,7 +87,7 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         // Step 7 Move Sideway to Left
         telemetry.addData("Status: ", 7);
         telemetry.update();
-        moveSidewayForMilliseconds( 0.4, 500 );
+        moveSidewayForMilliseconds( 0.6, 900 );
 
         // Step 8: Move front grabbers up
         telemetry.addData("Status: ", 8);
@@ -101,12 +101,12 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         telemetry.update();
 //        moveSidewayForMilliseconds(-0.3, 3000);
 //        sleep(100 );
-        moveSidewayUntilColorFound( -0.35, COLOR_BLUE, 5);
+        moveSidewayUntilColorFound( -0.25, COLOR_BLUE, 5);
 
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.25, 900);
+        moveFwdAndBackForMilliseconds(0.25, 970);
         sleep(500 );
 
 

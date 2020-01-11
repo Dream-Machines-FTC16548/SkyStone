@@ -65,13 +65,13 @@ public class DM_Auto_Mecanum_Left extends DM_Auto_Mecanum_Base {
         waitForStart();
 
         // Step 1: Move forward
-        moveFwdAndBackForMilliseconds(0.5, 900);
+        moveFwdAndBackForMilliseconds(0.5, 960);
 
         // Step 2: Move Sideway to Right
         moveSidewayForMilliseconds(-0.3, 2500);
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.25, 2.3, 2 );    // 1500 - x
+        moveFwdUntilRange( 0.15, 2.7, 2 );    // 1500 - x
 
         // Step 3: Put down front grabbers
         front_left_grab.setPosition(0.0);
