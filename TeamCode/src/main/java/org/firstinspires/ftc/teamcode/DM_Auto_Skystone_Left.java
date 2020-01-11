@@ -87,7 +87,7 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         // Step 7 Move Sideway to Left
         telemetry.addData("Status: ", 7);
         telemetry.update();
-        moveSidewayForMilliseconds( 0.6, 900 );
+        moveSidewayForMilliseconds( 0.6, 870 );
 
         // Step 8: Move front grabbers up
         telemetry.addData("Status: ", 8);
@@ -106,7 +106,7 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.25, 840);
+        moveFwdAndBackForMilliseconds(0.25, 920);
         sleep(500 );
 
 
