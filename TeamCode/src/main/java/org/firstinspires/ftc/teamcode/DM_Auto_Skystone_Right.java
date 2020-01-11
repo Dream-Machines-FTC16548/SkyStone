@@ -53,7 +53,7 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
             // Step 2: Move Sideway to Left until Skystone is found
         telemetry.addData("Status: ", 2);
         telemetry.update();
-        moveSidewayUntilSkystoneFoundV2( 0.16, 8000, true );
+        moveSidewayUntilSkystoneFoundV2( 0.17, 8000, true );
 //        moveSidewayForMilliseconds(0.15, 200);
 
         // Step 3: Move forward until certain range
@@ -71,7 +71,7 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         // Step 5: Move backward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(-0.25, 1800);
+        moveFwdAndBackForMilliseconds(-0.25, 2000);
         sleep(500 );
 
         // raise up the grabber a little to reduce friction of skystone
@@ -106,7 +106,7 @@ public class DM_Auto_Skystone_Right extends DM_Auto_Skystone_Base {
         // Step 10: Move forward a bit
         telemetry.addData("Status: ", 5);
         telemetry.update();
-        moveFwdAndBackForMilliseconds(0.25, 900);
+        moveFwdAndBackForMilliseconds(0.25, 800);
         sleep(500 );
 
 

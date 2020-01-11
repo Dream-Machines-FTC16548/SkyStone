@@ -80,7 +80,7 @@ public class DM_Auto_Mecanum_Left extends DM_Auto_Mecanum_Base {
 
         // Step 4: Move backward
         moveFwdAndBackForMilliseconds(-0.5, 1500);
-        moveFwdAndBackForMilliseconds(-0.25, 1300);
+        moveFwdAndBackForMilliseconds(-0.5, 1300);
         sleep(500 );
 
         // Step 5: Move front grabbers up
