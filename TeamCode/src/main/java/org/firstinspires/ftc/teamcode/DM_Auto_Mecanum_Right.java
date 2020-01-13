@@ -29,17 +29,9 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.app.Activity;
 import android.graphics.Color;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.hardware.ColorSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
 
 @Autonomous(name="DM: Auto Mecanum Park Right", group="DM#16548")
 //@Disabled
@@ -60,7 +52,7 @@ public class DM_Auto_Mecanum_Right extends DM_Auto_Mecanum_Base {
         moveSidewayForMilliseconds(0.3, 2500);
 
         // Step 2.5: Move forward until certain range
-        moveFwdUntilRange( 0.15, 2.7, 2 );    // 1500 - x
+        moveFwdUntilRange( 0.15, 1.0, 2 );    // 1500 - x
                                                            // -3500 - x
 
         // Step 3: Put down front grabbers
