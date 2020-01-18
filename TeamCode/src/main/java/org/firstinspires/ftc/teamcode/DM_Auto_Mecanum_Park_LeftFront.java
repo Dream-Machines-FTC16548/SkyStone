@@ -51,7 +51,7 @@ public class DM_Auto_Mecanum_Park_LeftFront extends DM_Auto_Mecanum_Base {
         moveSidewayUntilColorFound( 0.25, COLOR_RED, 300);
 
         // Step 2: Move forward a bit
-        moveFwdAndBackForMilliseconds(0.25, 1200);
+        moveFwdAndBackForMilliseconds(0.25, 2000);
 
         relativeLayout.post(new Runnable() {
             public void run() {
