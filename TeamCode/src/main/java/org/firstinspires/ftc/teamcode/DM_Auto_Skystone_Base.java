@@ -169,6 +169,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
 
         // Distance Sensor
         sensorRange = hardwareMap.get(DistanceSensor.class, "sensor_range");
+        sensorRange.resetDeviceConfigurationForOpMode();
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status", "Resetting Encoders");    //
