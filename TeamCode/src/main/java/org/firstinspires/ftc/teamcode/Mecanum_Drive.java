@@ -65,7 +65,7 @@ public class Mecanum_Drive extends LinearOpMode {
     public final static int linear_motor_up_step = 50;      // Linear Motor position up
     public final static int linear_motor_down_step = 50;    // Linear Motor position down
     public final static int linear_motor_initial = 0;        // Linear Motor initial position
-    public final static int linear_motor_end = 3500;        // Linear Motor end position
+    public final static int linear_motor_end = 3760;        // Linear Motor end position
     public final static int linear_motor_low_protection = 300;
     public final static double grabber_speed = 0.005;       // Grabber servo rotation rate
     public final static double arm_up_power = 1.0;          // Arm up movement rate
@@ -311,8 +311,8 @@ public class Mecanum_Drive extends LinearOpMode {
                     leftClaw.setPosition(0.39);
                     rightClaw.setPosition(0.59);
                 } else {
-                    leftClaw.setPosition(0.25);
-                    rightClaw.setPosition(0.7);
+                    leftClaw.setPosition(0.31);
+                    rightClaw.setPosition(0.75);
                 }
             }
 
@@ -395,8 +395,9 @@ public class Mecanum_Drive extends LinearOpMode {
             }
 */
 
+
             if ( grabber.getPosition() > 0.5 ) {
-                target_grabber = 0.7 + (double) ((linear_motor.getCurrentPosition() - linear_motor_low_protection)) / (double) ( linear_motor_end - linear_motor_low_protection ) * (0.89 - 0.7);
+                target_grabber = 0.769 + (double) ((linear_motor.getCurrentPosition() - linear_motor_low_protection)) / (double) ( linear_motor_end - linear_motor_low_protection ) * (0.975 - 0.769);
                 grabberOffset = target_grabber;
             }
 
@@ -500,6 +501,9 @@ public class Mecanum_Drive extends LinearOpMode {
         telemetry.addData("Status", "7");
         telemetry.update();
         while ( lower_sensor.getState()) {
+//            telemetry.addData("Status", "7.5");
+//            telemetry.addData("Status", lower_sensor.getState());
+//            telemetry.update();
             lowerArm.setTargetPosition(lowerArm.getCurrentPosition() - arm_down_step);
             lowerArm.setPower(arm_down_power);
         }
@@ -519,8 +523,8 @@ public class Mecanum_Drive extends LinearOpMode {
         telemetry.update();
 
         while ( arm_limit.getState()) {
-            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - linear_motor_down_step);
-            linear_motor.setPower(linear_motor_down_power);
+            linear_motor.setTargetPosition(linear_motor.getCurrentPosition() - (int) (linear_motor_down_step * 0.1 ));
+            linear_motor.setPower(linear_motor_down_power * 0.1 );
         }
         linear_motor.setPower(0);
         linear_motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
