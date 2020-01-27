@@ -75,8 +75,8 @@ public class DM_Auto_Skystone_Left extends DM_Auto_Skystone_Base {
         sleep(500 );
 
         // raise up the grabber a little to reduce friction of skystone
-//        front_left_grab.setPosition(0.22);
-//        sleep(500);
+        front_left_grab.setPosition(0.20);
+        sleep(500);
 
         // Step 6: Move Sideway to Left to line
         telemetry.addData("Status: ", 6);

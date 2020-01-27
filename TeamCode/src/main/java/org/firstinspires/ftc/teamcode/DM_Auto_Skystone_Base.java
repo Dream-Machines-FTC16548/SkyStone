@@ -86,7 +86,7 @@ public abstract class DM_Auto_Skystone_Base extends LinearOpMode {
     static final double     DRIVE_SPEED             = 0.7;
     static final double     TURN_SPEED              = 0.15;
     static final double     TARGET_SKYSTONE_LEFT_POS    = 370.0;
-    static final double     TARGET_SKYSTONE_RIGHT_POS   = 250.0;
+    static final double     TARGET_SKYSTONE_RIGHT_POS   = 240.0;
     static final boolean    fGyroAssisted           = true;
     boolean                 soundPlaying            = false;
 
